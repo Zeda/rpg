@@ -1,0 +1,59 @@
+.dw onload-$-1
+.dw onselect-$-1
+.dw onclose-$-1
+  .db $18       ;y
+  .db $23,$0D   ;!i
+  warp(0,8,25)
+  warp(4,0,31)
+  .db 0
+onload:
+  ifflag(6)
+  jump(erase_thugs)
+  .db 0
+
+erase_thugs:
+  settile(7,2,0)
+  settile(8,1,0)
+  settile(9,1,0)
+  settile(10,2,0)
+  .db 0
+
+onclose:
+  .db 0
+
+onselect:
+  .db 2
+  selectevent(8,1,-1,thug0)
+  selectevent(9,1,-1,thug1)
+
+thug0:
+  ifflag(6)
+  .db 0
+  ifflag(5)
+  jump(drama)
+  dialog(d_thug0)
+  .db 0
+
+thug1:
+  ifflag(6)
+  .db 0
+  ifflag(5)
+  jump(drama)
+  dialog(d_thug1)
+  .db 0
+
+drama:
+  dialog(d_drama)
+  setflag(6)
+  warp(0,3,9)
+  .db 0
+
+d_drama:
+  .db "Okay, let's get our",c_nl
+  .db "prize. Grab the kid.",c_nl
+  .db "Shoulda gone home.",0
+;      ----------------------
+d_thug0:
+  .db "...",0
+d_thug1:
+  .db "This should be easy.",0

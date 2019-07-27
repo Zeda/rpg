@@ -1,0 +1,128 @@
+; RPG Interrupt Service Routine (ISR)
+Interrupt:
+  push af
+  push bc
+  push de
+  push hl
+  push ix
+; introduce some true randomness to the RNG
+  call rand
+
+
+  in a, (4)
+  cpl
+  out (3),a
+
+  rra     ;bit 0
+  call nc,interruptON
+  rra     ;bit 1
+  call nc,interruptTimer1
+  rra     ;bit 2
+  call nc,interruptTimer2
+  rra     ;bit 3
+  rra     ;bit 4
+;  call nc,interruptLink
+;  rra     ;bit 5
+;  call nc,crystaltimer1
+;  rra     ;bit 6
+;  call nc,crystaltimer2
+;  rra     ;bit 7
+;  call nc,crystaltimer3
+
+;We need to animate the tiles
+  bit animate,(iy+rpgflags)
+  call nz,tile_animate
+
+  bit drawmap,(iy+rpgflags)
+  call nz,tilemap
+
+  call getKey_interrupt
+  bit updateLCD,(iy+rpgflags)
+  call nz,gbufToLCD_interrupt
+
+  ld a,11
+  out (3),a
+  pop ix
+  pop hl
+  pop de
+  pop bc
+  pop af
+  ei
+  ret
+interruptON:
+  jp close
+interruptTimer1:
+  ret
+interruptTimer2:
+  ret
+getKey_interrupt:
+  call getKey
+  ld (843Fh),a
+  ret
+tile_animate:
+  ld hl,tile_count
+  ld b,(hl)
+animate_loop:
+  inc hl    ;sprite#
+  inc hl    ;counter
+  dec (hl)
+  inc hl    ;LSB of new tile
+  jr nz,+_
+  set drawmap,(iy+rpgflags)
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  dec hl
+  dec hl
+  dec hl
+  ex de,hl
+  ld a,b
+  ldi
+  ldi
+  ldi
+  ldi
+  ld b,a
+  ex de,hl
+  dec hl
+  dec hl
+_:
+  inc hl
+  djnz animate_loop
+  ret
+gbufToLCD_interrupt:
+;Need to draw tilemap (gbuf)
+;Need to draw mask (maskbuf)
+;Need to draw top layer (topbuf)
+  bit noupdate,(iy+rpgflags)
+  ret nz
+  res updateLCD,(iy+rpgflags)
+gbufToLCD:
+  ld hl,gbuf+113
+  ld de,maskbuf
+  ld ix,topbuf
+  ld a,20h
+lcdloop:
+  push af
+  out (16),a
+  ld b,64
+_:
+  push bc
+  ld bc,12
+  ld a,(de)
+  and (hl)
+  or (ix)
+  add hl,bc
+  inc hl
+  inc hl
+  inc de
+  inc ix
+  pop bc
+  out (17),a
+  djnz -_
+  ld bc,-895
+  add hl,bc
+  pop af
+  inc a
+  cp $2C
+  jp nz,lcdloop
+  ret

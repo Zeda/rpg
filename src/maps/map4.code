@@ -1,0 +1,88 @@
+.dw onload-$-1
+.dw onselect-$-1
+.dw onclose-$-1
+
+  .db $19       ;y
+  num(0)
+  .db $05,$0D   ;=i
+  jump(warp_top)
+
+  .db $19       ;y
+  num(30)
+  .db $05,$0D   ;=i
+  jump(warp_bottom)
+
+;warp right:
+  .db 0
+
+warp_top:
+  .db $18       ;x
+  num(7)
+  .db $01,$0D   ;<i
+  warp(0,19,5)
+  ;else
+  warp(3,19,6)
+
+  .db 0
+
+warp_bottom:
+  .db 0
+
+
+onload:
+  ifflag(6)
+  jump(erase_thugs)
+  .db 0
+
+erase_thugs:
+  settile(2,4,0)
+  settile(1,5,0)
+  settile(1,6,0)
+  settile(2,7,0)
+  .db 0
+
+onclose:
+  .db 0
+
+
+onselect:
+  .db 2
+  selectevent(1,5,-1,thug0)
+  selectevent(1,6,-1,thug1)
+
+thug0:
+  ifflag(6)
+  .db 0
+  ifflag(5)
+  jump(drama)
+  dialog(d_thug0)
+  .db 0
+
+thug1:
+  ifflag(6)
+  .db 0
+  ifflag(5)
+  jump(drama)
+  dialog(d_thug1)
+  .db 0
+
+drama:
+  dialog(d_drama)
+  setflag(6)
+  warp(0,3,9)
+  .db 0
+
+d_drama:
+  .db "Okay, let's get our",c_nl
+  .db "prize. Grab the kid.",c_nl
+  .db "Shoulda gone home.",0
+
+d_thug0:
+  .db "Hey kid, get out of",c_nl
+  .db "here if you know",c_nl
+  .db "what's good for you!",0
+; .db "----------------------"
+d_thug1:
+  .db "If we get this, we get",c_nl
+  .db "a reward!",0
+; .db "----------------------"

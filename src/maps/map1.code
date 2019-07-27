@@ -1,0 +1,158 @@
+;events
+.dw onload-$-1
+.dw onselect-$-1
+.dw onclose-$-1
+;if (y == 4 or y == 5) and x == 7:
+;    warp(0,2,5)
+  .db $19           ;y
+  num(4)
+  .db $08           ;-
+  num(2)
+  .db $01,$18       ;<x
+  num(7)
+  .db $05,$24,$0D   ;=&i
+  warp(0,2,5)
+  .db 0
+
+onload:
+  settile(4,5,12+128)
+  ifnflag(0)
+  jump(getout)
+  ;else if flag 0 and flag 1 are set, need to do fancy stuff
+  ifnflag(1)
+  jump(gimmedirt_maybe)
+  resflag(1)
+  dialog(d_1)
+  .db 0
+
+onclose:
+  .db 0
+
+getout:
+  setflag(1)
+  setflag(7)
+  dialog(d_0)
+  warp(0,2,5)
+
+onselect:
+  .db 2
+  selectevent(4,5,1,select_0)
+  selectevent(7,7,-1,select_1)
+
+select_0:
+;Talking to Mr. Lafler
+  ifnflag(3)
+  jump(enter_name)
+
+gimmedirt_maybe:
+  ifnflag(3)
+  .db 0
+
+  ifnflag(4)
+  jump(gimmedirt)
+
+  ifnflag(5)
+  jump(plantflorita)
+
+
+
+  .db 0
+
+select_1:
+;Talking to Mr. Lafler's trashcan.
+  dialog(d_2)
+  .db 0
+  .db 0
+  .db 0
+
+gimmedirt:
+  dialog(d_7)
+  .db 0
+
+plantflorita:
+  addtile(68)   ;person-0-up
+  addtile(69)   ;juvenile-florita-head
+  addtile(70)   ;juvenile-florita-head
+  addtile(58)   ;baby florita
+  settile(3,5,16) ;baby florita
+  dialog(d_8)
+  settile(4,5,13) ;Mr. Laffler looks up
+  pause(130)
+  settile(2,5,14) ;juvenile florita
+  settile(3,5,15) ;
+  dialog(d_9)
+  .db 0
+
+enter_name:
+; Need to enter player's name
+
+  dialog(d_3)   ;whatcha doin here?
+  select(s_4)   ; momma and poppa sent me ;__;
+  dialog(d_4)   ; Ah, no shit, it's Sammie or whatever tf you call yourself.
+  inputname(pname,10) ; What's your name?
+  dialog(d_5)   ;Whelp, here's that medicine your mom needed, now let's look at this flower
+  additem(item_lafler_medicine,1)
+  pause(5)      ;for dramatic effect
+  dialog(d_6)   ;Well hot damn, this looks like a baby Florita, extinct for over 100 years! quick, get my jar of dirt
+  dialog(d_7)   ;get mah dirt
+  setflag(2)
+  setflag(3)
+  .db 0
+
+d_0:
+  .db "Get ",c_tok,t_out," stinky child!",c_nl
+  .db "Don't ",c_tok,t_come," ",c_tok,t_back,c_nl
+  .db c_tok,t_with,c_tok,t_out," a floral",c_nl
+  .db "aroma!",0
+
+d_1:
+  .db "Oh! What a lovely",c_nl
+  .db "aroma! Please ",c_tok,t_come," in!",0
+
+d_2:
+  .db "Oh, he must recycle!",0
+
+d_3:
+  .db "So, ",c_tok,t_how," ",c_tok,t_can," I help?",0
+
+d_4:
+  .db "Oh, ",c_name,", I've",c_nl
+  .db "been expecting ",c_tok,t_you,"!",c_nl
+  .db "Er, wait, ",c_tok,t_what," do ",c_tok,t_you,c_nl
+  .db "prefer ",c_tok,t_now,"?",0
+d_5:
+  .db "Well, ",c_name,", here",c_nl
+  .db "is ",c_tok,t_that," medicine ",c_tok,t_that,c_nl
+  .db c_tok,t_they," sent ",c_tok,t_for,", ",c_tok,t_now,c_nl
+  .db "let's inspect ",c_tok,t_that,c_nl
+  .db "wonderful flower!"
+  .db 0
+d_6:
+  .db "Well hot damn, ",c_tok,t_this,c_nl
+  .db c_tok,t_look,"s ",c_tok,t_like," a baby",c_nl
+  .db "Florita! These ",c_tok,t_have,c_nl
+  .db "been extinct ",c_tok,t_for," ",c_tok,t_over,c_nl
+  .db "100 years! This poor",c_nl
+  .db "thing needs soil!"
+  .db 0
+d_7:
+  .db "Go to ",c_tok,t_the,"shed ",c_tok,t_and,c_tok,t_get,c_nl
+  .db "my dirt!",0
+;      ----------------------
+
+d_8:
+  .db "Florita are pretty",c_nl
+  .db "hardy, but the right",c_nl
+  .db "nutrients can really",c_nl
+  .db "help them grow! This",c_nl
+  .db "is my best soil, so",c_nl
+  .db "it should do wonders.",0
+
+d_9:
+  .db "...",c_nl,"!",c_nl
+  .db "Wow, that was fast! 
+;      ----------------------
+
+s_4:
+  .db 1
+  .db "My parents sent me.",0

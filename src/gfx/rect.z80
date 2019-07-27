@@ -1,0 +1,253 @@
+irect:
+  ex (sp),hl
+  ld c,(hl)
+  inc hl
+  ld b,(hl)
+  inc hl
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+  ld a,(hl)
+  inc hl
+  ex (sp),hl
+rectangle:
+;A is method
+;(B,C) = (x,y)
+;(D,E) = (w,h)
+  inc d
+  dec d
+  ret z
+  dec d
+  inc e
+  dec e
+
+  or a
+  jr z,rectErase
+  dec a
+  jr z,rectOR
+  dec a
+  jr z,rectXOR
+  ret
+
+rectErase:
+  call rectsub
+  or a
+  jr z,rectErase_1
+  ld c,a
+
+  ld a,b
+  cpl
+  push bc
+  ld c,a
+  ld b,e
+  push hl
+_:
+  ld a,(hl)
+  and c
+  ld (hl),a
+  inc hl
+  djnz -_
+  pop hl
+  ld c,64
+  add hl,bc
+  pop bc
+  dec c
+  jr z,rect_Erase_right
+  ld a,c
+  ld c,64
+rect_Erase_loop:
+  push hl
+  ld b,e
+_:
+  ld (hl),0
+  inc hl
+  djnz -_
+  pop hl
+  add hl,bc
+  dec a
+  jr nz,rect_Erase_loop
+rect_Erase_right:
+  ld a,d
+  .db 1   ;start of `ld bc,**`
+rectErase_1:
+  ld a,b
+  and d
+  cpl
+  ld b,e
+  ld c,a
+_:
+  ld a,(hl)
+  and c
+  ld (hl),a
+  inc hl
+  djnz -_
+  ret
+
+rectOR:
+  call rectsub
+  or a
+  jr z,rectOR_1
+  ld c,a
+
+  push bc
+  ld c,b
+  ld b,e
+  push hl
+_:
+  ld a,(hl)
+  or c
+  ld (hl),a
+  inc hl
+  djnz -_
+  pop hl
+  ld c,64
+  add hl,bc
+  pop bc
+  dec c
+  jr z,rect_OR_right
+  ld a,c
+  ld c,64
+rect_OR_loop:
+  push hl
+  ld b,e
+_:
+  ld (hl),-1
+  inc hl
+  djnz -_
+  pop hl
+  add hl,bc
+  dec a
+  jr nz,rect_OR_loop
+rect_OR_right:
+  ld a,d
+  .db 1   ;start of `ld bc,**`
+rectOR_1:
+  ld a,b
+  and d
+  ld b,e
+  ld c,a
+_:
+  ld a,(hl)
+  or c
+  ld (hl),a
+  inc hl
+  djnz -_
+  ret
+
+rectXOR:
+  call rectsub
+  or a
+  jr z,rectXOR_1
+  ld c,a
+
+  push bc
+  ld c,b
+  ld b,e
+  push hl
+_:
+  ld a,(hl)
+  xor c
+  ld (hl),a
+  inc hl
+  djnz -_
+  pop hl
+  ld c,64
+  add hl,bc
+  pop bc
+  dec c
+  jr z,rect_XOR_right
+rect_XOR_loop:
+  push hl
+  ld b,e
+_:
+  ld a,(hl)
+  cpl
+  ld (hl),a
+  inc hl
+  djnz -_
+  pop hl
+  add hl,bc
+  dec c
+  jr nz,rect_XOR_loop
+rect_XOR_right:
+  ld a,d
+  .db 1   ;start of `ld bc,**`
+rectXOR_1:
+  ld a,b
+  and d
+  ld b,e
+  ld c,a
+_:
+  ld a,(hl)
+  xor c
+  ld (hl),a
+  inc hl
+  djnz -_
+  ret
+
+rectsub:
+;calculate the address of where to start drawing
+  ;y + (x>>3)<<6
+  ld a,b
+  and %11111000
+  ld l,a
+  ld h,0
+  ld a,b
+  ld b,h
+  add hl,hl
+  add hl,hl
+  add hl,hl
+  add hl,bc
+  ld bc,(curbuf)
+  add hl,bc
+
+;save the x coord
+  ld c,a
+
+;Calculate the left mask
+  and 7
+  ld b,a
+  ld a,0
+  scf
+  jr z,+_
+  rra
+  djnz $-1
+_:
+  dec a
+  push af
+
+;calculate the width in bytes
+  ld a,c
+  add a,d
+  ld b,a
+  and %11111000
+  rrca
+  rrca
+  rrca
+  ld d,a      ;end column
+  ld a,c
+  and %11111000
+  rrca
+  rrca
+  rrca
+  neg
+  add a,d
+  push af     ;width. 0 means it is all on one column
+
+;calculate the right mask
+  ld a,b
+  and 7
+  ld b,a
+  ld a,$80
+  jr z,+_
+  rrca
+  djnz $-1
+_:
+  dec a
+  cpl   ;left mask in 'a'
+  ld d,a
+  pop af
+  pop bc
+  ;B is right-mask, D is left-mask, A is width in columns, HL is location
+  ret

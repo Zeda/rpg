@@ -1,0 +1,131 @@
+textinput:
+  ld (textbase),hl
+;Draw the text box
+;1 line for the input
+;7 lines of chars
+;5 pixels worth of padding
+;20*4+2
+  ld hl,maskbuf
+  call clrbuf
+
+  ld hl,topbuf
+  ld (curbuf),hl
+
+  Rect(0,1,64,94,_OR)
+  Rect(1,0,62,96,_OR)
+  Rect(1,1,62,94,_Erase)
+  Rect(9,2,1,92,_OR)
+
+  ld hl,$0201
+  ld (textcol),hl
+  ld hl,(textbase)
+  call putS
+
+  ld hl,$0B01
+  ld (textcol),hl
+
+  ld bc,$0B41
+_:
+  ld a,c
+  call putC
+  ld a,' '
+  call putC
+  inc c
+  djnz -_
+
+  ld hl,$1101
+  ld (textcol),hl
+  ld b,11
+_:
+  ld a,c
+  call putC
+  ld a,' '
+  call putC
+  inc c
+  djnz -_
+
+
+  ld hl,$1901
+  ld (textcol),hl
+  ld b,4
+_:
+  ld a,c
+  call putC
+  ld a,' '
+  call putC
+  inc c
+  djnz -_
+
+
+  ld bc,$0761
+_:
+  ld a,c
+  call putC
+  ld a,' '
+  call putC
+  inc c
+  djnz -_
+
+
+
+  ld hl,$2101
+  ld (textcol),hl
+  ld b,11
+_:
+  ld a,c
+  call putC
+  ld a,' '
+  call putC
+  inc c
+  djnz -_
+
+
+  ld hl,$2901
+  ld (textcol),hl
+  ld b,8
+_:
+  ld a,c
+  call putC
+  ld a,' '
+  call putC
+  inc c
+  djnz -_
+
+  ld a,' '
+  call putC
+  ld a,' '
+  call putC
+  ld a,'!'
+  call putC
+  ld a,' '
+  call putC
+  ld a,'?'
+  call putC
+
+
+  ld hl,$3101
+  ld (textcol),hl
+  ld bc,$0A30
+_:
+  ld a,c
+  call putC
+  ld a,' '
+  call putC
+  inc c
+  djnz -_
+
+  set updateLCD,(iy+rpgflags)
+_:
+  halt
+  djnz -_
+
+
+; Reset the buffers
+  call clrtopbuf
+  ld hl,maskbuf
+  dec a
+  call fillbuf
+  jp resetplayersprite
+
+
+;62 plus punctuation

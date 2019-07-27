@@ -1,0 +1,12 @@
+mapLUT:
+  .dw map0
+  .dw map1
+  .dw map2
+  .dw map3
+  .dw map4
+
+#include "maps/map0_comp.z80"
+#include "maps/map1_comp.z80"
+#include "maps/map2_comp.z80"
+#include "maps/map3_comp.z80"
+#include "maps/map4_comp.z80"

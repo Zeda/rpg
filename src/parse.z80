@@ -1,0 +1,730 @@
+parse:
+;HL points to the code to parse
+  ld ix,parse_stack
+_:
+  ld a,(hl)
+  inc hl
+  or a
+  ret z
+  call +_
+  jr -_
+_:
+
+;Look up the command's code
+  push hl
+  dec a
+  cp (commandLUT_end-commandLUT)/3
+  call nc,err_Unknown_command
+  ld e,a
+  add a,a
+  add a,e
+  add a,commandLUT&255
+  ld l,a
+  ld h,commandLUT>>8
+  jr nc,$+3
+  inc h
+  ld a,(hl)
+  inc hl
+  ld h,(hl)
+  ld l,a
+  ex (sp),hl
+  ret
+
+commandLUT:
+;  .dw cmd_return       \ .db 0 ; 00
+
+  .dw cmd_lt           \ .db 0 ;01
+  .dw cmd_le           \ .db 0 ;02
+  .dw cmd_gt           \ .db 0 ;03
+  .dw cmd_ge           \ .db 0 ;04
+  .dw cmd_eq           \ .db 0 ;05
+  .dw cmd_neq          \ .db 0 ;06
+  .dw cmd_add          \ .db 0 ;07
+  .dw cmd_sub          \ .db 0 ;08
+  .dw cmd_mul          \ .db 0 ;09
+  .dw cmd_div          \ .db 0 ;0A
+  .dw cmd_uint8        \ .db 1 ;0B
+  .dw cmd_uint16       \ .db 2 ;0C
+
+  .dw cmd_if           \ .db 0 ;0D
+  .dw cmd_jump         \ .db 2 ;0E
+  .dw cmd_warp         \ .db 3 ;0F
+  .dw cmd_getflag      \ .db 2 ;10
+  .dw cmd_setflag      \ .db 2 ;11
+  .dw cmd_resflag      \ .db 2 ;12
+  .dw cmd_dialog       \ .db 2 ;13
+  .dw cmd_gettile      \ .db 2 ;14
+  .dw cmd_settile      \ .db 3 ;15
+  .dw cmd_getsavebyte  \ .db 2 ;16
+  .dw cmd_setsavebyte  \ .db 3 ;17
+  .dw cmd_getpx        \ .db 0 ;18
+  .dw cmd_getpy        \ .db 0 ;19
+  .dw cmd_getpd        \ .db 0 ;1A
+
+  .dw cmd_asprite      \ .db 4 ;1B
+  .dw cmd_sprite       \ .db 4 ;1C
+  .dw cmd_shiftsprite  \ .db 3 ;1D
+  .dw cmd_disp         \ .db 0 ;1E
+  .dw cmd_noupd        \ .db 0 ;1F
+  .dw cmd_upd          \ .db 0 ;20
+  .dw cmd_tilesheet    \ .db 2 ;21
+  .dw cmd_playersheet  \ .db 4 ;22
+  .dw cmd_not          \ .db 0 ;23
+  .dw cmd_and          \ .db 0 ;24
+  .dw cmd_or           \ .db 0 ;25
+  .dw cmd_xor          \ .db 0 ;26
+  .dw cmd_pause        \ .db 1 ;27
+  .dw cmd_select       \ .db 2 ;28
+  .dw cmd_inputname    \ .db 3 ;29
+  .dw cmd_additem      \ .db 2 ;2A
+;  .dw cmd_             \ .db 0 ;
+commandLUT_end:
+
+cmd_pause:
+  ld b,(hl)
+  inc hl
+_:
+  halt
+  djnz -_
+  ret
+cmd_select:
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+
+  ret
+;DE points to the options list
+  push hl
+  ex de,hl
+  call select
+  ;A is the index of the selected option
+  ld e,a
+  jp parse_push_E
+cmd_additem:
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+  ld a,d
+  or a
+  ret z
+  ;E is the item number, D is the quantity
+  push hl
+  push de
+  ld hl,d_obtain_item
+  ld bc,d_obtain_item_end-d_obtain_item
+  ld de,OP1
+  ldir
+  pop de
+  ld (OP1+d_obtain_item_qty-d_obtain_item),a
+  dec a
+  jr nz,+_
+  ld (OP1+1+d_obtain_item_name-d_obtain_item),a
+_:
+  ld a,e
+  ld (OP1+d_obtain_item_name-d_obtain_item),a
+  push de
+
+;Need to display the dialog
+  ld hl,OP1
+  call dialogue
+
+  pop de
+  call additem
+
+  pop hl
+  ret
+
+cmd_inputname:
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+  ld b,(hl)
+  inc hl
+  ;DE points to where to output
+  ;  DE<0x4000 means offset into save file
+  ;  else static
+  ;B is the number of characters allowed.
+  push hl
+  ld a,h
+  cp $40
+  jr nc,+_
+  ld hl,(player_save)
+  add hl,de
+  .db $FE   ;start of `cp *`
+_:
+  ex de,hl
+
+  call textinput
+
+  pop hl
+  ret
+cmd_or:
+cmd_xor:
+
+cmd_:
+cmd_sprite:
+cmd_shiftsprite:
+cmd_le:
+cmd_gt:
+cmd_ge:
+cmd_neq:
+cmd_mul:
+cmd_div:
+
+  call err_Unknown_Command
+
+cmd_asprite:
+;Draw an aligned sprite
+  ld c,(hl)
+  inc hl
+  ld b,(hl)
+  inc hl
+  push hl
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+  ld hl,overworld_sprites
+  add hl,de
+  ex de,hl
+  pop hl
+
+
+; BC is the offset into the buffer to start writing
+; DE points to the sprite mask
+  push hl
+
+  ld hl,maskbuf
+  add hl,bc
+  ex de,hl
+  call mov8
+  ex de,hl
+  ld hl,topbuf+8  ;since mov8 decrements BC by 8
+  add hl,bc
+  ex de,hl
+  call mov8
+
+  pop hl
+  ret
+cmd_disp:
+  set drawmap,(iy+rpgflags)
+  ret
+
+cmd_noupd:
+  set noupdate,(iy+rpgflags)
+  ret
+
+cmd_upd:
+  res noupdate,(iy+rpgflags)
+  ret
+
+cmd_tilesheet:
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+  ld (sprites),de
+  ret
+cmd_playersheet:
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+  ld (player_sprite_base),de
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+  ld (player_tile_base),de
+  ret
+
+cmd_uint16:
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+  jp parse_push_DE
+cmd_uint8:
+  ld e,(hl)
+  inc hl
+  jp parse_push_E
+cmd_getpy:
+  ld a,(map_y)
+  add a,5
+  ld e,a
+  jp parse_push_E
+cmd_getpx:
+  ld a,(map_x)
+  add a,6
+  ld e,a
+  jp parse_push_E
+cmd_getpd:
+  ld a,(p_direction)
+  ld e,a
+  jp parse_push_E
+cmd_getflag:
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+
+;DE is the flag number to identify
+  push hl
+  ld hl,(player_save)
+  ld bc,player_flags
+  add hl,bc
+
+  ld a,e
+  srl d \ rr e
+  srl d \ rr e
+  srl d \ rr e
+  add hl,de
+  and 7
+  ld b,a
+  ld a,(hl)
+  pop hl
+  jr z,$+5
+  rrca
+  djnz $-1
+  and 1
+  ld e,a
+  jp parse_push_E
+
+cmd_setflag:
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+
+;DE is the flag number to set
+  push hl
+  ld hl,(player_save)
+  ld bc,player_flags
+  add hl,bc
+
+  ld a,e
+  srl d \ rr e
+  srl d \ rr e
+  srl d \ rr e
+  add hl,de
+  ;HL is where the flag is located
+  and 7
+  ld b,a
+  ld a,1
+  jr z,$+5
+  add a,a
+  djnz $-1
+  or (hl)
+  ld (hl),a
+  pop hl
+  ret
+
+cmd_resflag:
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+
+;DE is the flag number to reset
+  push hl
+  ld hl,(player_save)
+  ld bc,player_flags
+  add hl,bc
+
+  ld a,e
+  srl d \ rr e
+  srl d \ rr e
+  srl d \ rr e
+  add hl,de
+  ;HL is where the flag is located
+  and 7
+  ld b,a
+  ld a,1
+  jr z,$+5
+  add a,a
+  djnz $-1
+  cpl
+  and (hl)
+  ld (hl),a
+  pop hl
+  ret
+
+cmd_getsavebyte:
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+
+;DE is the byte to read
+  push hl
+  ld hl,(player_save)
+  add hl,de
+  ld e,(hl)
+  pop hl
+  jp parse_push_E
+
+cmd_setsavebyte:
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+  ld a,(hl)
+  inc hl
+
+  push hl
+  ld hl,(player_save)
+  add hl,de
+  ld (hl),a
+  pop hl
+  ret
+
+cmd_settile:
+  ;overwrite a tile!
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+  push hl
+  ex de,hl
+  call curtile_ptr
+  pop de
+  ex de,hl
+  ldi
+  set drawmap,(iy+rpgflags)
+  ret
+
+cmd_gettile:
+  ;overwrite a tile!
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+  push hl
+  ex de,hl
+  call curtile_ptr
+  ld e,(hl)
+  pop hl
+  jp parse_push_E
+
+cmd_jump:
+  ;jump!
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  add hl,de
+  ret
+
+cmd_dialog:
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  inc hl
+  push hl
+  add hl,de
+  call dialogue
+  pop hl
+  ret
+
+cmd_sub:
+  push hl
+  call parse_pop
+  push de
+  call parse_pop
+  pop hl
+  ex de,hl
+  or a
+  sbc hl,de
+  ex de,hl
+  pop hl
+  jp parse_push_DE
+
+cmd_add:
+  push hl
+  call parse_pop
+  push de
+  call parse_pop
+  pop hl
+  add hl,de
+  ex de,hl
+  pop hl
+  jp parse_push_DE
+
+cmd_lt:
+  push hl
+  call parse_pop
+  push de
+  call parse_pop
+  pop hl
+  ex de,hl
+  or a
+  sbc hl,de
+  ccf
+  sbc hl,hl
+  inc hl
+  ex de,hl
+  pop hl
+  jp parse_push_DE
+
+cmd_eq:
+  push hl
+  call parse_pop
+  push de
+  call parse_pop
+  pop hl
+  xor a
+  sbc hl,de
+  ld d,a
+  ld e,a
+  jr nz,$+3
+  inc e
+  pop hl
+  jr parse_push_DE
+
+cmd_and:
+  push hl
+  call parse_pop
+  push de
+  call parse_pop
+  pop hl
+  ld a,d
+  and h
+  ld d,a
+  ld a,e
+  and l
+  ld e,a
+  pop hl
+  jr parse_push_DE
+
+cmd_not:
+  push hl
+  call parse_pop
+  pop hl
+  ld a,d \ or e
+  ld de,0
+  jp nz,parse_push_DE
+  inc e
+  jp parse_push_DE
+
+cmd_if:
+  call parse_pop
+  ld a,d
+  or e
+  jr z,parse_skip
+  ret
+
+cmd_warp:
+  ;read in the next four bytes
+  pop de    ;quit parsing
+  ld d,0
+  ld e,(hl)
+  inc hl
+  ld c,(hl)
+  inc hl
+  ld b,(hl)
+  inc hl
+;de    = mapID
+;(b,c) = (x,y)
+  push hl
+  call warp
+  pop hl
+  ret
+_:
+
+parse_skip:
+  ld a,(hl)
+  inc hl
+  or a
+  ret z
+  dec a
+  ld e,a
+  add a,a
+  add a,e
+  add a,255&(commandLUT+2)
+  ld e,a
+  ld d,(commandLUT+2)>>8
+  jr nc,$+3
+  inc d
+
+  ld a,(de)
+  ld e,a
+  ld d,0
+  add hl,de
+  ret
+
+parse_push_E:
+  ld d,0
+parse_push_DE:
+  ld (ix),e
+  inc ixl
+  ld (ix),d
+  inc ixl
+  ret nz
+  ld ixl,parse_stack&255
+  ret
+
+parse_pop:
+  dec ixl
+  ld d,(ix)
+  dec ixl
+  ld e,(ix)
+  ret
+
+dialogue:
+  push hl
+
+;draw the AND mask
+  ld hl,maskbuf
+  ld (curbuf),hl
+  Rect(48,0,16,96,_Erase)
+
+;Draw the menu box on the OR mask
+  ld hl,topbuf
+  ld (curbuf),hl
+  Rect(48,1,16,94,_OR)
+  Rect(49,0,14,96,_OR)
+  Rect(49,1,14,94,_Erase)
+
+;Print the text!
+  ld hl,$3201
+  ld (textcol),hl
+  pop hl
+  call putDialog
+  jr nc,dialog_end
+
+_:
+  call putDialog
+  jr nc,dialog_end
+  call dialog_wait
+  call dialog_scroll
+  jr -_
+
+dialog_end:
+  call dialog_wait
+
+;Now pack up the dialog box:
+  Rect(48,0,16,96,_Erase)
+  ld hl,maskbuf
+  ld (curbuf),hl
+  Rect(48,0,16,96,_OR)
+  ret
+
+
+dialog_wait:
+  set updateLCD,(iy+rpgflags)
+_:
+  halt
+  ld a,(843Fh)
+  or a
+  jr nz,-_
+
+_:
+  halt
+  ld a,(843Fh)
+  dec a
+  ret z
+  cp 8
+  jr nz,-_
+;Need to load and scroll
+  call dialog_scroll
+  jr putDialog
+
+_:
+  cp c_newline
+  jr z,+_
+  call putC
+putDialog:
+  ld a,(hl)
+  or a
+  ret z
+  ld a,(textcol)
+  cp 23
+  ld a,(hl)
+  inc hl
+  jr nz,-_
+  cp c_newline
+  jr z,+_
+  dec hl
+_:
+  ld a,1
+  ld (textcol),a
+  ld a,(textrow)
+  add a,-56
+  ret c
+  ld a,56
+  ld (textrow),a
+
+  scf
+  ret
+
+dialog_scroll:
+;scroll the dialog up 6 pixels
+  call pushpop
+
+  ld de,topbuf+50
+  ld hl,topbuf+56
+  ld bc,$060A
+_:
+  ld a,(hl)
+  ld (de),a
+  ld (hl),$80
+  inc hl
+  inc de
+  djnz -_
+
+dialog_sroll_loop:
+  ld a,l
+  add a,58
+  ld l,a
+  jr nc,$+3
+  inc h
+
+  ld a,e
+  add a,58
+  ld e,a
+  jr nc,$+3
+  inc d
+
+  ld b,6
+_:
+  ld a,(hl)
+  ld (de),a
+  ld (hl),0
+  inc hl
+  inc de
+  djnz -_
+
+  dec c
+  jr nz,dialog_sroll_loop
+
+  ld de,topbuf+754
+  ld hl,topbuf+760
+  ld bc,$0601
+_:
+  ld a,(hl)
+  ld (de),a
+  ld (hl),c
+  inc hl
+  inc de
+  djnz -_
+  ret
+
+select:
+  ret
+additem:
+  ret
+
+
+
+
+d_obtain_item:
+  .db "Obtained:",c_nl,c_tok,tok_item
+d_obtain_item_name:
+  .db 0
+  .db "x",c_u8
+d_obtain_item_qty:
+  .db 0
+  .db ".",0
+d_obtain_item_end:

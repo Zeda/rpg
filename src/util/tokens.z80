@@ -1,0 +1,1021 @@
+toksheet_0:
+toksheet_1:
+toksheet_2:
+toksheet_3:
+toksheet_4:
+toksheet_5:
+toksheet_6:
+toksheet_7:
+toksheet_8:
+toksheet_9:
+toksheet_A:
+toksheet_B:
+toksheet_C:
+toksheet_D:
+toksheet_E:
+token_sheet:
+  .db 1   ;number of extended tokens
+  .db (+_-$)/2
+  .dw itemsheet         ; FF
+  .dw tok_00            ; 00
+  .dw tok_01            ; 01
+  .dw tok_02            ; 02
+  .dw tok_03            ; 03
+  .dw tok_04            ; 04
+  .dw tok_05            ; 05
+  .dw tok_06            ; 06
+  .dw tok_07            ; 07
+  .dw tok_08            ; 08
+  .dw tok_09            ; 09
+  .dw tok_0A            ; 0A
+  .dw tok_0B            ; 0B
+  .dw tok_0C            ; 0C
+  .dw tok_0D            ; 0D
+  .dw tok_0E            ; 0E
+  .dw tok_0F            ; 0F
+  .dw tok_10            ; 10
+  .dw tok_11            ; 11
+  .dw tok_12            ; 12
+  .dw tok_13            ; 13
+  .dw tok_14            ; 14
+  .dw tok_15            ; 15
+  .dw tok_16            ; 16
+  .dw tok_17            ; 17
+  .dw tok_18            ; 18
+  .dw tok_19            ; 19
+  .dw tok_1A            ; 1A
+  .dw tok_1B            ; 1B
+  .dw tok_1C            ; 1C
+  .dw tok_1D            ; 1D
+  .dw tok_1E            ; 1E
+  .dw tok_1F            ; 1F
+  .dw tok_20            ; 20
+  .dw tok_21            ; 21
+  .dw tok_22            ; 22
+  .dw tok_23            ; 23
+  .dw tok_24            ; 24
+  .dw tok_25            ; 25
+  .dw tok_26            ; 26
+  .dw tok_27            ; 27
+  .dw tok_28            ; 28
+  .dw tok_29            ; 29
+  .dw tok_2A            ; 2A
+  .dw tok_2B            ; 2B
+  .dw tok_2C            ; 2C
+  .dw tok_2D            ; 2D
+  .dw tok_2E            ; 2E
+  .dw tok_2F            ; 2F
+  .dw tok_30            ; 30
+  .dw tok_31            ; 31
+  .dw tok_32            ; 32
+  .dw tok_33            ; 33
+  .dw tok_34            ; 34
+  .dw tok_35            ; 35
+  .dw tok_36            ; 36
+  .dw tok_37            ; 37
+  .dw tok_38            ; 38
+  .dw tok_39            ; 39
+  .dw tok_3A            ; 3A
+  .dw tok_3B            ; 3B
+  .dw tok_3C            ; 3C
+  .dw tok_3D            ; 3D
+  .dw tok_3E            ; 3E
+  .dw tok_3F            ; 3F
+  .dw tok_40            ; 40
+  .dw tok_41            ; 41
+  .dw tok_42            ; 42
+  .dw tok_43            ; 43
+  .dw tok_44            ; 44
+  .dw tok_45            ; 45
+  .dw tok_46            ; 46
+  .dw tok_47            ; 47
+  .dw tok_48            ; 48
+_:
+  ; .dw tok_49            ; 49
+  ; .dw tok_4A            ; 4A
+  ; .dw tok_4B            ; 4B
+  ; .dw tok_4C            ; 4C
+  ; .dw tok_4D            ; 4D
+  ; .dw tok_4E            ; 4E
+  ; .dw tok_4F            ; 4F
+  ; .dw tok_50            ; 50
+  ; .dw tok_51            ; 51
+  ; .dw tok_52            ; 52
+  ; .dw tok_53            ; 53
+  ; .dw tok_54            ; 54
+  ; .dw tok_55            ; 55
+  ; .dw tok_56            ; 56
+  ; .dw tok_57            ; 57
+  ; .dw tok_58            ; 58
+  ; .dw tok_59            ; 59
+  ; .dw tok_5A            ; 5A
+  ; .dw tok_5B            ; 5B
+  ; .dw tok_5C            ; 5C
+  ; .dw tok_5D            ; 5D
+  ; .dw tok_5E            ; 5E
+  ; .dw tok_5F            ; 5F
+  ; .dw tok_60            ; 60
+  ; .dw tok_61            ; 61
+  ; .dw tok_62            ; 62
+  ; .dw tok_63            ; 63
+  ; .dw tok_64            ; 64
+  ; .dw tok_65            ; 65
+  ; .dw tok_66            ; 66
+  ; .dw tok_67            ; 67
+  ; .dw tok_68            ; 68
+  ; .dw tok_69            ; 69
+  ; .dw tok_6A            ; 6A
+  ; .dw tok_6B            ; 6B
+  ; .dw tok_6C            ; 6C
+  ; .dw tok_6D            ; 6D
+  ; .dw tok_6E            ; 6E
+  ; .dw tok_6F            ; 6F
+  ; .dw tok_70            ; 70
+  ; .dw tok_71            ; 71
+  ; .dw tok_72            ; 72
+  ; .dw tok_73            ; 73
+  ; .dw tok_74            ; 74
+  ; .dw tok_75            ; 75
+  ; .dw tok_76            ; 76
+  ; .dw tok_77            ; 77
+  ; .dw tok_78            ; 78
+  ; .dw tok_79            ; 79
+  ; .dw tok_7A            ; 7A
+  ; .dw tok_7B            ; 7B
+  ; .dw tok_7C            ; 7C
+  ; .dw tok_7D            ; 7D
+  ; .dw tok_7E            ; 7E
+  ; .dw tok_7F            ; 7F
+  ; .dw tok_80            ; 80
+  ; .dw tok_81            ; 81
+  ; .dw tok_82            ; 82
+  ; .dw tok_83            ; 83
+  ; .dw tok_84            ; 84
+  ; .dw tok_85            ; 85
+  ; .dw tok_86            ; 86
+  ; .dw tok_87            ; 87
+  ; .dw tok_88            ; 88
+  ; .dw tok_89            ; 89
+  ; .dw tok_8A            ; 8A
+  ; .dw tok_8B            ; 8B
+  ; .dw tok_8C            ; 8C
+  ; .dw tok_8D            ; 8D
+  ; .dw tok_8E            ; 8E
+  ; .dw tok_8F            ; 8F
+  ; .dw tok_90            ; 90
+  ; .dw tok_91            ; 91
+  ; .dw tok_92            ; 92
+  ; .dw tok_93            ; 93
+  ; .dw tok_94            ; 94
+  ; .dw tok_95            ; 95
+  ; .dw tok_96            ; 96
+  ; .dw tok_97            ; 97
+  ; .dw tok_98            ; 98
+  ; .dw tok_99            ; 99
+  ; .dw tok_9A            ; 9A
+  ; .dw tok_9B            ; 9B
+  ; .dw tok_9C            ; 9C
+  ; .dw tok_9D            ; 9D
+  ; .dw tok_9E            ; 9E
+  ; .dw tok_9F            ; 9F
+  ; .dw tok_A0            ; A0
+  ; .dw tok_A1            ; A1
+  ; .dw tok_A2            ; A2
+  ; .dw tok_A3            ; A3
+  ; .dw tok_A4            ; A4
+  ; .dw tok_A5            ; A5
+  ; .dw tok_A6            ; A6
+  ; .dw tok_A7            ; A7
+  ; .dw tok_A8            ; A8
+  ; .dw tok_A9            ; A9
+  ; .dw tok_AA            ; AA
+  ; .dw tok_AB            ; AB
+  ; .dw tok_AC            ; AC
+  ; .dw tok_AD            ; AD
+  ; .dw tok_AE            ; AE
+  ; .dw tok_AF            ; AF
+  ; .dw tok_B0            ; B0
+  ; .dw tok_B1            ; B1
+  ; .dw tok_B2            ; B2
+  ; .dw tok_B3            ; B3
+  ; .dw tok_B4            ; B4
+  ; .dw tok_B5            ; B5
+  ; .dw tok_B6            ; B6
+  ; .dw tok_B7            ; B7
+  ; .dw tok_B8            ; B8
+  ; .dw tok_B9            ; B9
+  ; .dw tok_BA            ; BA
+  ; .dw tok_BB            ; BB
+  ; .dw tok_BC            ; BC
+  ; .dw tok_BD            ; BD
+  ; .dw tok_BE            ; BE
+  ; .dw tok_BF            ; BF
+  ; .dw tok_C0            ; C0
+  ; .dw tok_C1            ; C1
+  ; .dw tok_C2            ; C2
+  ; .dw tok_C3            ; C3
+  ; .dw tok_C4            ; C4
+  ; .dw tok_C5            ; C5
+  ; .dw tok_C6            ; C6
+  ; .dw tok_C7            ; C7
+  ; .dw tok_C8            ; C8
+  ; .dw tok_C9            ; C9
+  ; .dw tok_CA            ; CA
+  ; .dw tok_CB            ; CB
+  ; .dw tok_CC            ; CC
+  ; .dw tok_CD            ; CD
+  ; .dw tok_CE            ; CE
+  ; .dw tok_CF            ; CF
+  ; .dw tok_D0            ; D0
+  ; .dw tok_D1            ; D1
+  ; .dw tok_D2            ; D2
+  ; .dw tok_D3            ; D3
+  ; .dw tok_D4            ; D4
+  ; .dw tok_D5            ; D5
+  ; .dw tok_D6            ; D6
+  ; .dw tok_D7            ; D7
+  ; .dw tok_D8            ; D8
+  ; .dw tok_D9            ; D9
+  ; .dw tok_DA            ; DA
+  ; .dw tok_DB            ; DB
+  ; .dw tok_DC            ; DC
+  ; .dw tok_DD            ; DD
+  ; .dw tok_DE            ; DE
+  ; .dw tok_DF            ; DF
+  ; .dw tok_E0            ; E0
+  ; .dw tok_E1            ; E1
+  ; .dw tok_E2            ; E2
+  ; .dw tok_E3            ; E3
+  ; .dw tok_E4            ; E4
+  ; .dw tok_E5            ; E5
+  ; .dw tok_E6            ; E6
+  ; .dw tok_E7            ; E7
+  ; .dw tok_E8            ; E8
+  ; .dw tok_E9            ; E9
+  ; .dw tok_EA            ; EA
+  ; .dw tok_EB            ; EB
+  ; .dw tok_EC            ; EC
+  ; .dw tok_ED            ; ED
+  ; .dw tok_EE            ; EE
+  ; .dw tok_EF            ; EF
+  ; .dw toksheet_0        ; F0
+  ; .dw toksheet_1        ; F1
+  ; .dw toksheet_2        ; F2
+  ; .dw toksheet_3        ; F3
+  ; .dw toksheet_4        ; F4
+  ; .dw toksheet_5        ; F5
+  ; .dw toksheet_6        ; F6
+  ; .dw toksheet_7        ; F7
+  ; .dw toksheet_8        ; F8
+  ; .dw toksheet_9        ; F9
+  ; .dw toksheet_A        ; FA
+  ; .dw toksheet_B        ; FB
+  ; .dw toksheet_C        ; FC
+  ; .dw toksheet_D        ; FD
+  ; .dw toksheet_E        ; FE
+  ; .dw toksheet_F        ; FF
+tok_00: .db "the ",0
+tok_01: .db "and ",0
+tok_02: .db "that",0
+tok_03: .db "have ",0
+tok_04: .db "for",0
+tok_05: .db "not",0
+tok_06: .db "with ",0
+tok_07: .db "you",0
+tok_08: .db "this",0
+tok_09: .db ", but",0
+tok_0A: .db "from ",0
+tok_0B: .db "they ",0
+tok_0C: .db "say ",0
+tok_0D: .db "will",0
+tok_0E: .db "one",0
+tok_0F: .db "all",0
+tok_10: .db "would",0
+tok_11: .db "there",0
+tok_12: .db "their ",0
+tok_13: .db "what",0
+tok_15: .db "ab"
+tok_14: .db "out",0
+tok_16: .db "who",0
+tok_17: .db "get ",0
+tok_18: .db "which ",0
+tok_19: .db "when",0
+tok_1A: .db "make ",0
+tok_1B: .db "can",0
+tok_1C: .db "like",0
+tok_1D: .db "time",0
+tok_1E: .db "just",0
+tok_1F: .db "him",0
+tok_21: .db "take",0
+tok_22: .db "people",0
+tok_23: .db "into",0
+tok_25: .db "good",0
+tok_26: .db "some",0
+tok_27: .db "could",0
+tok_28: .db "them",0
+tok_29: .db "see",0
+tok_2B: .db "than",0
+tok_2C: .db "then",0
+tok_20: .db "k"
+tok_2D: .db "now",0
+tok_2E: .db "look",0
+tok_2F: .db "only",0
+tok_30: .db "come",0
+tok_31: .db "its",0
+tok_32: .db "over",0
+tok_33: .db "think",0
+tok_34: .db "also",0
+tok_35: .db "back",0
+tok_36: .db "after",0
+tok_42: .db "beca"
+tok_37: .db "use",0
+tok_38: .db "two",0
+tok_39: .db "how",0
+tok_24: .db "y"
+tok_3A: .db "our",0
+tok_3B: .db "work",0
+tok_3C: .db "first",0
+tok_3D: .db "well",0
+tok_3E: .db "way",0
+tok_3F: .db "even",0
+tok_40: .db "new",0
+tok_41: .db "want",0
+tok_43: .db "any",0
+tok_44: .db "these",0
+tok_45: .db "give",0
+tok_46: .db "day",0
+tok_47: .db "most",0
+tok_2A: .db "ot"
+tok_48: .db "her",0
+tok_49:
+tok_4A:
+tok_4B:
+tok_4C:
+tok_4D:
+tok_4E:
+tok_4F:
+tok_50:
+tok_51:
+tok_52:
+tok_53:
+tok_54:
+tok_55:
+tok_56:
+tok_57:
+tok_58:
+tok_59:
+tok_5A:
+tok_5B:
+tok_5C:
+tok_5D:
+tok_5E:
+tok_5F:
+tok_60:
+tok_61:
+tok_62:
+tok_63:
+tok_64:
+tok_65:
+tok_66:
+tok_67:
+tok_68:
+tok_69:
+tok_6A:
+tok_6B:
+tok_6C:
+tok_6D:
+tok_6E:
+tok_6F:
+tok_70:
+tok_71:
+tok_72:
+tok_73:
+tok_74:
+tok_75:
+tok_76:
+tok_77:
+tok_78:
+tok_79:
+tok_7A:
+tok_7B:
+tok_7C:
+tok_7D:
+tok_7E:
+tok_7F:
+tok_80:
+tok_81:
+tok_82:
+tok_83:
+tok_84:
+tok_85:
+tok_86:
+tok_87:
+tok_88:
+tok_89:
+tok_8A:
+tok_8B:
+tok_8C:
+tok_8D:
+tok_8E:
+tok_8F:
+tok_90:
+tok_91:
+tok_92:
+tok_93:
+tok_94:
+tok_95:
+tok_96:
+tok_97:
+tok_98:
+tok_99:
+tok_9A:
+tok_9B:
+tok_9C:
+tok_9D:
+tok_9E:
+tok_9F:
+tok_A0:
+tok_A1:
+tok_A2:
+tok_A3:
+tok_A4:
+tok_A5:
+tok_A6:
+tok_A7:
+tok_A8:
+tok_A9:
+tok_AA:
+tok_AB:
+tok_AC:
+tok_AD:
+tok_AE:
+tok_AF:
+tok_B0:
+tok_B1:
+tok_B2:
+tok_B3:
+tok_B4:
+tok_B5:
+tok_B6:
+tok_B7:
+tok_B8:
+tok_B9:
+tok_BA:
+tok_BB:
+tok_BC:
+tok_BD:
+tok_BE:
+tok_BF:
+tok_C0:
+tok_C1:
+tok_C2:
+tok_C3:
+tok_C4:
+tok_C5:
+tok_C6:
+tok_C7:
+tok_C8:
+tok_C9:
+tok_CA:
+tok_CB:
+tok_CC:
+tok_CD:
+tok_CE:
+tok_CF:
+tok_D0:
+tok_D1:
+tok_D2:
+tok_D3:
+tok_D4:
+tok_D5:
+tok_D6:
+tok_D7:
+tok_D8:
+tok_D9:
+tok_DA:
+tok_DB:
+tok_DC:
+tok_DD:
+tok_DE:
+tok_DF:
+tok_E0:
+tok_E1:
+tok_E2:
+tok_E3:
+tok_E4:
+tok_E5:
+tok_E6:
+tok_E7:
+tok_E8:
+tok_E9:
+tok_EA:
+tok_EB:
+tok_EC:
+tok_ED:
+tok_EE:
+tok_EF: .db 0
+
+
+
+
+itemsheet:
+  .db 0
+  .db (+_-$)/2
+  .dw tok_item_00            ; 00
+  .dw tok_item_01            ; 01
+  .dw tok_item_02            ; 02
+_:
+  ; .dw tok_item_03            ; 03
+  ; .dw tok_item_04            ; 04
+  ; .dw tok_item_05            ; 05
+  ; .dw tok_item_06            ; 06
+  ; .dw tok_item_07            ; 07
+  ; .dw tok_item_08            ; 08
+  ; .dw tok_item_09            ; 09
+  ; .dw tok_item_0A            ; 0A
+  ; .dw tok_item_0B            ; 0B
+  ; .dw tok_item_0C            ; 0C
+  ; .dw tok_item_0D            ; 0D
+  ; .dw tok_item_0E            ; 0E
+  ; .dw tok_item_0F            ; 0F
+  ; .dw tok_item_10            ; 10
+  ; .dw tok_item_11            ; 11
+  ; .dw tok_item_12            ; 12
+  ; .dw tok_item_13            ; 13
+  ; .dw tok_item_14            ; 14
+  ; .dw tok_item_15            ; 15
+  ; .dw tok_item_16            ; 16
+  ; .dw tok_item_17            ; 17
+  ; .dw tok_item_18            ; 18
+  ; .dw tok_item_19            ; 19
+  ; .dw tok_item_1A            ; 1A
+  ; .dw tok_item_1B            ; 1B
+  ; .dw tok_item_1C            ; 1C
+  ; .dw tok_item_1D            ; 1D
+  ; .dw tok_item_1E            ; 1E
+  ; .dw tok_item_1F            ; 1F
+  ; .dw tok_item_20            ; 20
+  ; .dw tok_item_21            ; 21
+  ; .dw tok_item_22            ; 22
+  ; .dw tok_item_23            ; 23
+  ; .dw tok_item_24            ; 24
+  ; .dw tok_item_25            ; 25
+  ; .dw tok_item_26            ; 26
+  ; .dw tok_item_27            ; 27
+  ; .dw tok_item_28            ; 28
+  ; .dw tok_item_29            ; 29
+  ; .dw tok_item_2A            ; 2A
+  ; .dw tok_item_2B            ; 2B
+  ; .dw tok_item_2C            ; 2C
+  ; .dw tok_item_2D            ; 2D
+  ; .dw tok_item_2E            ; 2E
+  ; .dw tok_item_2F            ; 2F
+  ; .dw tok_item_30            ; 30
+  ; .dw tok_item_31            ; 31
+  ; .dw tok_item_32            ; 32
+  ; .dw tok_item_33            ; 33
+  ; .dw tok_item_34            ; 34
+  ; .dw tok_item_35            ; 35
+  ; .dw tok_item_36            ; 36
+  ; .dw tok_item_37            ; 37
+  ; .dw tok_item_38            ; 38
+  ; .dw tok_item_39            ; 39
+  ; .dw tok_item_3A            ; 3A
+  ; .dw tok_item_3B            ; 3B
+  ; .dw tok_item_3C            ; 3C
+  ; .dw tok_item_3D            ; 3D
+  ; .dw tok_item_3E            ; 3E
+  ; .dw tok_item_3F            ; 3F
+  ; .dw tok_item_40            ; 40
+  ; .dw tok_item_41            ; 41
+  ; .dw tok_item_42            ; 42
+  ; .dw tok_item_43            ; 43
+  ; .dw tok_item_44            ; 44
+  ; .dw tok_item_45            ; 45
+  ; .dw tok_item_46            ; 46
+  ; .dw tok_item_47            ; 47
+  ; .dw tok_item_48            ; 48
+  ; .dw tok_item_49            ; 49
+  ; .dw tok_item_4A            ; 4A
+  ; .dw tok_item_4B            ; 4B
+  ; .dw tok_item_4C            ; 4C
+  ; .dw tok_item_4D            ; 4D
+  ; .dw tok_item_4E            ; 4E
+  ; .dw tok_item_4F            ; 4F
+  ; .dw tok_item_50            ; 50
+  ; .dw tok_item_51            ; 51
+  ; .dw tok_item_52            ; 52
+  ; .dw tok_item_53            ; 53
+  ; .dw tok_item_54            ; 54
+  ; .dw tok_item_55            ; 55
+  ; .dw tok_item_56            ; 56
+  ; .dw tok_item_57            ; 57
+  ; .dw tok_item_58            ; 58
+  ; .dw tok_item_59            ; 59
+  ; .dw tok_item_5A            ; 5A
+  ; .dw tok_item_5B            ; 5B
+  ; .dw tok_item_5C            ; 5C
+  ; .dw tok_item_5D            ; 5D
+  ; .dw tok_item_5E            ; 5E
+  ; .dw tok_item_5F            ; 5F
+  ; .dw tok_item_60            ; 60
+  ; .dw tok_item_61            ; 61
+  ; .dw tok_item_62            ; 62
+  ; .dw tok_item_63            ; 63
+  ; .dw tok_item_64            ; 64
+  ; .dw tok_item_65            ; 65
+  ; .dw tok_item_66            ; 66
+  ; .dw tok_item_67            ; 67
+  ; .dw tok_item_68            ; 68
+  ; .dw tok_item_69            ; 69
+  ; .dw tok_item_6A            ; 6A
+  ; .dw tok_item_6B            ; 6B
+  ; .dw tok_item_6C            ; 6C
+  ; .dw tok_item_6D            ; 6D
+  ; .dw tok_item_6E            ; 6E
+  ; .dw tok_item_6F            ; 6F
+  ; .dw tok_item_70            ; 70
+  ; .dw tok_item_71            ; 71
+  ; .dw tok_item_72            ; 72
+  ; .dw tok_item_73            ; 73
+  ; .dw tok_item_74            ; 74
+  ; .dw tok_item_75            ; 75
+  ; .dw tok_item_76            ; 76
+  ; .dw tok_item_77            ; 77
+  ; .dw tok_item_78            ; 78
+  ; .dw tok_item_79            ; 79
+  ; .dw tok_item_7A            ; 7A
+  ; .dw tok_item_7B            ; 7B
+  ; .dw tok_item_7C            ; 7C
+  ; .dw tok_item_7D            ; 7D
+  ; .dw tok_item_7E            ; 7E
+  ; .dw tok_item_7F            ; 7F
+  ; .dw tok_item_80            ; 80
+  ; .dw tok_item_81            ; 81
+  ; .dw tok_item_82            ; 82
+  ; .dw tok_item_83            ; 83
+  ; .dw tok_item_84            ; 84
+  ; .dw tok_item_85            ; 85
+  ; .dw tok_item_86            ; 86
+  ; .dw tok_item_87            ; 87
+  ; .dw tok_item_88            ; 88
+  ; .dw tok_item_89            ; 89
+  ; .dw tok_item_8A            ; 8A
+  ; .dw tok_item_8B            ; 8B
+  ; .dw tok_item_8C            ; 8C
+  ; .dw tok_item_8D            ; 8D
+  ; .dw tok_item_8E            ; 8E
+  ; .dw tok_item_8F            ; 8F
+  ; .dw tok_item_90            ; 90
+  ; .dw tok_item_91            ; 91
+  ; .dw tok_item_92            ; 92
+  ; .dw tok_item_93            ; 93
+  ; .dw tok_item_94            ; 94
+  ; .dw tok_item_95            ; 95
+  ; .dw tok_item_96            ; 96
+  ; .dw tok_item_97            ; 97
+  ; .dw tok_item_98            ; 98
+  ; .dw tok_item_99            ; 99
+  ; .dw tok_item_9A            ; 9A
+  ; .dw tok_item_9B            ; 9B
+  ; .dw tok_item_9C            ; 9C
+  ; .dw tok_item_9D            ; 9D
+  ; .dw tok_item_9E            ; 9E
+  ; .dw tok_item_9F            ; 9F
+  ; .dw tok_item_A0            ; A0
+  ; .dw tok_item_A1            ; A1
+  ; .dw tok_item_A2            ; A2
+  ; .dw tok_item_A3            ; A3
+  ; .dw tok_item_A4            ; A4
+  ; .dw tok_item_A5            ; A5
+  ; .dw tok_item_A6            ; A6
+  ; .dw tok_item_A7            ; A7
+  ; .dw tok_item_A8            ; A8
+  ; .dw tok_item_A9            ; A9
+  ; .dw tok_item_AA            ; AA
+  ; .dw tok_item_AB            ; AB
+  ; .dw tok_item_AC            ; AC
+  ; .dw tok_item_AD            ; AD
+  ; .dw tok_item_AE            ; AE
+  ; .dw tok_item_AF            ; AF
+  ; .dw tok_item_B0            ; B0
+  ; .dw tok_item_B1            ; B1
+  ; .dw tok_item_B2            ; B2
+  ; .dw tok_item_B3            ; B3
+  ; .dw tok_item_B4            ; B4
+  ; .dw tok_item_B5            ; B5
+  ; .dw tok_item_B6            ; B6
+  ; .dw tok_item_B7            ; B7
+  ; .dw tok_item_B8            ; B8
+  ; .dw tok_item_B9            ; B9
+  ; .dw tok_item_BA            ; BA
+  ; .dw tok_item_BB            ; BB
+  ; .dw tok_item_BC            ; BC
+  ; .dw tok_item_BD            ; BD
+  ; .dw tok_item_BE            ; BE
+  ; .dw tok_item_BF            ; BF
+  ; .dw tok_item_C0            ; C0
+  ; .dw tok_item_C1            ; C1
+  ; .dw tok_item_C2            ; C2
+  ; .dw tok_item_C3            ; C3
+  ; .dw tok_item_C4            ; C4
+  ; .dw tok_item_C5            ; C5
+  ; .dw tok_item_C6            ; C6
+  ; .dw tok_item_C7            ; C7
+  ; .dw tok_item_C8            ; C8
+  ; .dw tok_item_C9            ; C9
+  ; .dw tok_item_CA            ; CA
+  ; .dw tok_item_CB            ; CB
+  ; .dw tok_item_CC            ; CC
+  ; .dw tok_item_CD            ; CD
+  ; .dw tok_item_CE            ; CE
+  ; .dw tok_item_CF            ; CF
+  ; .dw tok_item_D0            ; D0
+  ; .dw tok_item_D1            ; D1
+  ; .dw tok_item_D2            ; D2
+  ; .dw tok_item_D3            ; D3
+  ; .dw tok_item_D4            ; D4
+  ; .dw tok_item_D5            ; D5
+  ; .dw tok_item_D6            ; D6
+  ; .dw tok_item_D7            ; D7
+  ; .dw tok_item_D8            ; D8
+  ; .dw tok_item_D9            ; D9
+  ; .dw tok_item_DA            ; DA
+  ; .dw tok_item_DB            ; DB
+  ; .dw tok_item_DC            ; DC
+  ; .dw tok_item_DD            ; DD
+  ; .dw tok_item_DE            ; DE
+  ; .dw tok_item_DF            ; DF
+  ; .dw tok_item_E0            ; E0
+  ; .dw tok_item_E1            ; E1
+  ; .dw tok_item_E2            ; E2
+  ; .dw tok_item_E3            ; E3
+  ; .dw tok_item_E4            ; E4
+  ; .dw tok_item_E5            ; E5
+  ; .dw tok_item_E6            ; E6
+  ; .dw tok_item_E7            ; E7
+  ; .dw tok_item_E8            ; E8
+  ; .dw tok_item_E9            ; E9
+  ; .dw tok_item_EA            ; EA
+  ; .dw tok_item_EB            ; EB
+  ; .dw tok_item_EC            ; EC
+  ; .dw tok_item_ED            ; ED
+  ; .dw tok_item_EE            ; EE
+  ; .dw tok_item_EF            ; EF
+  ; .dw tok_item          ; F0
+  ; .dw toksheet_1        ; F1
+  ; .dw toksheet_2        ; F2
+  ; .dw toksheet_3        ; F3
+  ; .dw toksheet_4        ; F4
+  ; .dw toksheet_5        ; F5
+  ; .dw toksheet_6        ; F6
+  ; .dw toksheet_7        ; F7
+  ; .dw toksheet_8        ; F8
+  ; .dw toksheet_9        ; F9
+  ; .dw toksheet_A        ; FA
+  ; .dw toksheet_B        ; FB
+  ; .dw toksheet_C        ; FC
+  ; .dw toksheet_D        ; FD
+  ; .dw toksheet_E        ; FE
+  ; .dw toksheet_F        ; FF
+tok_item_00: .db "Mr. Lafler's Dirt",0
+tok_item_01: .db "Mr. Lafler's Medicine",0
+tok_item_02: .db "Potion",0
+tok_item_03:
+tok_item_04:
+tok_item_05:
+tok_item_06:
+tok_item_07:
+tok_item_08:
+tok_item_09:
+tok_item_0A:
+tok_item_0B:
+tok_item_0C:
+tok_item_0D:
+tok_item_0E:
+tok_item_0F:
+tok_item_10:
+tok_item_11:
+tok_item_12:
+tok_item_13:
+tok_item_14:
+tok_item_15:
+tok_item_16:
+tok_item_17:
+tok_item_18:
+tok_item_19:
+tok_item_1A:
+tok_item_1B:
+tok_item_1C:
+tok_item_1D:
+tok_item_1E:
+tok_item_1F:
+tok_item_20:
+tok_item_21:
+tok_item_22:
+tok_item_23:
+tok_item_24:
+tok_item_25:
+tok_item_26:
+tok_item_27:
+tok_item_28:
+tok_item_29:
+tok_item_2A:
+tok_item_2B:
+tok_item_2C:
+tok_item_2D:
+tok_item_2E:
+tok_item_2F:
+tok_item_30:
+tok_item_31:
+tok_item_32:
+tok_item_33:
+tok_item_34:
+tok_item_35:
+tok_item_36:
+tok_item_37:
+tok_item_38:
+tok_item_39:
+tok_item_3A:
+tok_item_3B:
+tok_item_3C:
+tok_item_3D:
+tok_item_3E:
+tok_item_3F:
+tok_item_40:
+tok_item_41:
+tok_item_42:
+tok_item_43:
+tok_item_44:
+tok_item_45:
+tok_item_46:
+tok_item_47:
+tok_item_48:
+tok_item_49:
+tok_item_4A:
+tok_item_4B:
+tok_item_4C:
+tok_item_4D:
+tok_item_4E:
+tok_item_4F:
+tok_item_50:
+tok_item_51:
+tok_item_52:
+tok_item_53:
+tok_item_54:
+tok_item_55:
+tok_item_56:
+tok_item_57:
+tok_item_58:
+tok_item_59:
+tok_item_5A:
+tok_item_5B:
+tok_item_5C:
+tok_item_5D:
+tok_item_5E:
+tok_item_5F:
+tok_item_60:
+tok_item_61:
+tok_item_62:
+tok_item_63:
+tok_item_64:
+tok_item_65:
+tok_item_66:
+tok_item_67:
+tok_item_68:
+tok_item_69:
+tok_item_6A:
+tok_item_6B:
+tok_item_6C:
+tok_item_6D:
+tok_item_6E:
+tok_item_6F:
+tok_item_70:
+tok_item_71:
+tok_item_72:
+tok_item_73:
+tok_item_74:
+tok_item_75:
+tok_item_76:
+tok_item_77:
+tok_item_78:
+tok_item_79:
+tok_item_7A:
+tok_item_7B:
+tok_item_7C:
+tok_item_7D:
+tok_item_7E:
+tok_item_7F:
+tok_item_80:
+tok_item_81:
+tok_item_82:
+tok_item_83:
+tok_item_84:
+tok_item_85:
+tok_item_86:
+tok_item_87:
+tok_item_88:
+tok_item_89:
+tok_item_8A:
+tok_item_8B:
+tok_item_8C:
+tok_item_8D:
+tok_item_8E:
+tok_item_8F:
+tok_item_90:
+tok_item_91:
+tok_item_92:
+tok_item_93:
+tok_item_94:
+tok_item_95:
+tok_item_96:
+tok_item_97:
+tok_item_98:
+tok_item_99:
+tok_item_9A:
+tok_item_9B:
+tok_item_9C:
+tok_item_9D:
+tok_item_9E:
+tok_item_9F:
+tok_item_A0:
+tok_item_A1:
+tok_item_A2:
+tok_item_A3:
+tok_item_A4:
+tok_item_A5:
+tok_item_A6:
+tok_item_A7:
+tok_item_A8:
+tok_item_A9:
+tok_item_AA:
+tok_item_AB:
+tok_item_AC:
+tok_item_AD:
+tok_item_AE:
+tok_item_AF:
+tok_item_B0:
+tok_item_B1:
+tok_item_B2:
+tok_item_B3:
+tok_item_B4:
+tok_item_B5:
+tok_item_B6:
+tok_item_B7:
+tok_item_B8:
+tok_item_B9:
+tok_item_BA:
+tok_item_BB:
+tok_item_BC:
+tok_item_BD:
+tok_item_BE:
+tok_item_BF:
+tok_item_C0:
+tok_item_C1:
+tok_item_C2:
+tok_item_C3:
+tok_item_C4:
+tok_item_C5:
+tok_item_C6:
+tok_item_C7:
+tok_item_C8:
+tok_item_C9:
+tok_item_CA:
+tok_item_CB:
+tok_item_CC:
+tok_item_CD:
+tok_item_CE:
+tok_item_CF:
+tok_item_D0:
+tok_item_D1:
+tok_item_D2:
+tok_item_D3:
+tok_item_D4:
+tok_item_D5:
+tok_item_D6:
+tok_item_D7:
+tok_item_D8:
+tok_item_D9:
+tok_item_DA:
+tok_item_DB:
+tok_item_DC:
+tok_item_DD:
+tok_item_DE:
+tok_item_DF:
+tok_item_E0:
+tok_item_E1:
+tok_item_E2:
+tok_item_E3:
+tok_item_E4:
+tok_item_E5:
+tok_item_E6:
+tok_item_E7:
+tok_item_E8:
+tok_item_E9:
+tok_item_EA:
+tok_item_EB:
+tok_item_EC:
+tok_item_ED:
+tok_item_EE: .db 0
+tok_item_EF: .db 0
+.echo $-toksheet_1

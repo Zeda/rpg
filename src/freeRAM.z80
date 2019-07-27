@@ -1,0 +1,174 @@
+cxVectors     = $858D
+onSP          = $85BC
+errSP         = $86DE
+flags         = $89F0
+parsingPtrs   = $9652
+stackPointers = $9820
+prevDData     = $8452
+tokVarPtr     = $846A
+penCol        = $86D7
+errNo         = $86DD
+errOffset     = $86E0
+listEditPtrs  = $96FC
+infVars       = $8C4D
+_fillBasePageTable=5011h
+_clrTxtShd      = 454Ch
+_saveCmdShadow  = 4573h
+_delRes         = 4A20h
+_grReset        = 4831h
+_zeroFinanceVars= 512Bh
+_randInit       = 4B7Fh
+
+
+backupOSRAM = $9D95-325
+
+;Must not create or delete vars.
+saveOSRAM:
+  ld hl,(onSP)
+  ld (backupOSRAM),hl
+  ld hl,(errSP)
+  ld (backupOSRAM+2),hl
+  ld hl,$843F
+  ld de,backupOSRAM+4
+  ld bc,19
+  ldir
+  ld hl,cxVectors
+  ld c,25
+  ldir
+  ld hl,flags-4
+  ld c,74
+  ldir
+  ld hl,$8DA1
+  ld c,139
+  ldir
+  ld hl,$9302
+  ld c,5
+  ldir
+  ld hl,parsingPtrs
+  ld c,28
+  ldir
+  ld hl,$97A5
+  ld c,11
+  ldir
+  ld hl,stackPointers
+  ld c,20
+  ldir
+  ret
+restoreOSRAM:
+;restore saved RAM
+  ld hl,(backupOSRAM)
+  ld (onSP),hl
+  ld hl,(backupOSRAM+2)
+  ld (errSP),hl
+  ld de,$843F
+  ld hl,backupOSRAM+4
+  ld bc,19
+  ldir
+  ld de,cxVectors
+  ld c,25
+  ldir
+  ld de,flags-4
+  ld c,74
+  ldir
+  ld de,$8DA1
+  ld c,139
+  ldir
+  ld de,$9302
+  ld c,5
+  ldir
+  ld de,parsingPtrs
+  ld c,28
+  ldir
+  ld de,$97A5
+  ld c,11
+  ldir
+  ld de,stackPointers
+  ld c,20
+  ldir
+;zero OS vars
+  xor a
+  ld (errNo),a
+  ld h,a
+  ld l,a
+  ld (penCol),hl
+  ld (errOffset),hl
+  ld (tokVarPtr),hl
+  ld (tokVarPtr+2),hl
+  ld bc,7
+  ld hl,prevDData
+  call setmem_nc
+  ld c,13
+  ld hl,$84DD
+  call setmem_nc
+  ld c,10
+  ld hl,$85DC
+  call setmem_nc
+  ld hl,infVars
+  ld bc,340
+  call setmem_nc
+  ld hl,$91DC
+  ld bc,294
+  call setmem_nc
+  ld hl,listEditPtrs
+  ld c,169
+  call setmem_nc
+  ld hl,$980C
+  ld c,20
+  call setmem_nc
+  ld hl,$983C
+  ld c,43
+  call setmem_nc
+  bcall(_fillBasePageTable)
+  bcall(_clrTxtShd)
+  bcall(_saveCmdShadow)
+  bcall(_delRes)
+  bcall(_grReset)
+  bcall(_zeroFinanceVars)
+  bcall(_randInit)
+;should we display an OS formatted string ?
+  ret
+
+
+setmem:
+  dec bc
+setmem_nc:
+  ld d,h
+  ld e,l
+  inc de
+  ld (hl),a
+  ldir
+  ret
+
+
+;  bcall(_fillBasePageTable)
+;  bcall(_clrTxtShd)
+;  bcall(_saveCmdShadow)
+;  bcall(_delRes)
+;  bcall(_grReset)
+;  bcall(_zeroFinanceVars)
+;  bcall(_randInit)
+;should we display an OS formatted string ?
+;restore:
+;  19 bytes at $843F
+;  25 bytes at $858D (cxVectors)
+;  2 bytes at $85BC (onSP)
+;  2 bytes at $86DE (errSP)
+;  74 bytes at $89EC (flags-4)
+;  139 bytes at $8DA1 (graphStuff)
+;  5 bytes at $9302 (entryStackStuff)
+;  28 bytes at $9652 (parsingPtrs)
+;  11 bytes at $97A5 (windowStuff)
+;  20 bytes at $9820 (stackPointers)
+;zero:
+;  8 bytes at $8452  (prevDData)
+;  4 bytes at $846A  (tokVarPtr)
+;  14 bytes at $84DD
+;  11 bytes at $85DC (menuStuff)
+;  2 bytes at $86D7 (penCol)
+;  1 byte at $86DD (errNo)
+;  2 bytes at $86E0 (errOffset)
+;  340 bytes at $8C4D (infVars)
+;  294 bytes at $91DC (tableStuff)
+;  169 bytes at $96FC (listEditPtrs)
+;  20 bytes at $980C
+;  43 bytes at $983C

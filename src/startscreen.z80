@@ -1,0 +1,60 @@
+startscreen:
+  ld hl,gbuf
+  call clrbuf
+  ld bc,1120-768
+  ldir
+
+  ld hl,splash
+  ld de,topbuf
+  ld (curbuf),de
+  ld bc,splash_end-splash
+  call dcmplz77
+  res noupdate,(iy+rpgflags)
+  call +_
+clrtopbuf:
+  ld hl,topbuf
+clrbuf:
+  xor a
+fillbuf:
+  ld (hl),a
+  ld d,h
+  ld e,l
+  inc de
+  ld bc,767
+  ldir
+  ret
+_:
+  ld hl,256
+  call blink_startscreen+2
+startscreen_loop:
+  inc l
+  call z,blink_startscreen
+  halt
+  ld a,(843Fh)
+  cp 9
+  ret z
+  cp 54
+  jr nz,startscreen_loop
+  ret
+blink_startscreen:
+  ld l,-32
+  inc h
+  bit 0,h
+  push hl
+  jr nz,blink_off_startscreen
+  ld hl,$3806
+  ld (textcol),hl
+  ld hl,s_pressenter
+  call putS
+  jr +_
+blink_off_startscreen:
+  Rect($38,24,6,52,_Erase)
+_:
+  set updateLCD,(iy+rpgflags)
+  pop hl
+  ret
+splash:
+#include "gfx/splash_comp.z80"
+splash_end:
+s_pressenter:
+  .db "[PRESS ENTER]",0

@@ -1,0 +1,2 @@
+spasm maps/map0.z80 maps/map0.bin
+python zlz.py maps/map0.bin maps/map0_comp.z80 map0

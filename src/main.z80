@@ -1,0 +1,931 @@
+#define DEBUG
+
+#include "app.z80"
+#include "rpg.inc"
+#define bcall(x) rst 28h \ .dw x
+#define lcdwait() in a,(16) \ rlca \ jr c,$-3
+;#define maxMHZ
+header("RPG",1)   ;Names, page count
+  call SetUp
+  call startscreen
+  call main
+close:
+  call waitnokey
+  ld sp,(spsave)
+  di
+  im 1
+  call packup
+  bcall(_JForceCmdNoChar)
+
+
+
+.echo $4040-$," bytes before interrupt jump"
+#if $4040<$
+.echo "Alert!!! Interrupt jump is in the wrong place!"
+#else
+.fill $4040-$,255
+#endif
+#include "interrupt.z80"
+
+
+
+.echo $4100-$," bytes before interrupt jump"
+#if $4100<$
+;need to shorten interrupt, possibly put in a jp instead of actual code
+.echo "Alert!!! Interrupt table is in the wrong place!"
+.echo "no interrupt table"
+#else
+.fill $4100-$,255
+.fill $4201-$,$40
+#endif
+
+main:
+  call init_player_sprite
+
+;Load the tilemap
+  ld hl,tilesheet
+  ld (sprites),hl
+
+  ld ix,(player_save)
+  ld e,(ix+3)
+  ld d,(ix+4)
+  ld c,(ix+5)
+  ld b,(ix+6)
+  ld a,(ix+18)
+  and 3
+  ld (p_direction),a
+  call warp
+
+;  ld hl,map0
+;  call setupTileMap
+  ei
+mainloop:
+
+#ifdef DEBUG
+  call disp_coords
+#endif
+
+  bit mapedit,(iy+rpgflags)
+  jr nz,uinp_mapedit
+  halt
+  ld a,(843Fh)
+  or a
+  jr nz,ui_found
+  call resetplayersprite
+_:
+  halt
+  ld a,(843Fh)
+  or a
+  jr z,-_
+  jr ui_found
+
+uinp_mapedit:
+  call GetKeyDebounce
+  or a
+  jr z,uinp_mapedit
+
+ui_found:
+  ld hl,(map_y)
+  ld de,(map_height)
+  dec e
+  dec d
+
+  bit mapedit,(iy+rpgflags)
+  jr z,+_
+; Need to fix the current tile
+  push hl
+  push de
+  push af
+  call curtile_ptr
+  ld a,(oldtile_mapedit)
+  ld (hl),a
+  call shells_clear
+  pop af
+  pop de
+  pop hl
+  set drawmap,(iy+rpgflags)
+_:
+  cp 15     ; [clear]
+  ret z
+  cp 55     ; [mode]
+  call z,setup_mapedit
+  cp 32     ; [stat]
+  call z,close_mapedit
+  cp 9      ; [enter]
+  call z,enter_pressed
+  cp 10     ; [+]
+  call z,mapedit_inctile
+  cp 11     ; [-]
+  call z,mapedit_dectile
+  cp 12     ; [*]
+  call z,mapedit_toggleblock
+
+  dec a
+  call z,dn
+  dec a
+  call z,lft
+  dec a
+  call z,rgt
+  dec a
+  call z,up
+
+  bit mapedit,(iy+rpgflags)
+  jr z,mainloop
+
+; Need to set the current tile
+  ld hl,(map_y)
+  call curtile_ptr
+  ld a,(hl)
+  ld (oldtile_mapedit),a
+  add a,a
+  ld a,(curtile_mapedit)
+  ld (hl),a
+
+  ;Need to draw the boxes!
+  ;On the outer shell, make corner guards if we want it to be un-walkable
+  ;On the next shell, make it solid if currently unwalkable
+  ;On the next shell, make it dotted if it is an event tile
+  call c,shell_1
+  call m,shell_2
+  add a,a
+  call c,shell_0
+
+  res noupdate,(iy+rpgflags)
+  set drawmap,(iy+rpgflags)
+  jp mainloop
+dn:
+  push af
+  xor a \ call setplayersprite
+  ld a,l
+  add a,5
+  cp e
+  jp nc,event_tile
+
+  ;make sure it is a walkable tile
+  inc l
+  call curtile
+  jp m,event_tile
+  jr c,+_
+
+;  jr c,$
+  ;need to update map_UL and map_UR by incrementing
+  set noupdate,(iy+rpgflags)
+  ld (map_y),hl
+  ld hl,(map_UL)
+  inc hl
+  ld (map_UL),hl
+  ld hl,(map_UR)
+  inc hl
+  ld (map_UR),hl
+;As we shift, we also need to make animation
+  bit mapedit,(iy+rpgflags) \ jr nz,+_
+  call shiftup2 \ call gbufToLCD; \ call nextplayersprite
+  call shiftup2 \ call gbufToLCD; \ call nextplayersprite
+  call shiftup2 \ call gbufToLCD; \ call nextplayersprite
+  call shiftup2 \ call gbufToLCD \ call nextplayersprite
+  res noupdate,(iy+rpgflags)
+  set drawmap,(iy+rpgflags)
+_:
+  pop af
+  ret
+lft:
+  push af
+  ld a,1 \ call setplayersprite
+  ld a,h
+  cp -6
+  jp z,event_tile
+  dec h
+  call curtile
+  jp m,event_tile
+  jr c,+_
+
+  set noupdate,(iy+rpgflags)
+  ld (map_y),hl
+  ld (coord),hl
+  xor a
+  ld b,a
+  ld a,(map_height)
+  ld c,a
+  ld hl,(map_UL)
+  sbc hl,bc
+  ld (map_UL),hl
+  ld hl,(map_UR)
+  sbc hl,bc
+  ld (map_UR),hl
+  bit mapedit,(iy+rpgflags) \ jr nz,+_
+  call shiftright2 \ call gbufToLCD; \ call nextplayersprite
+  call shiftright2 \ call gbufToLCD; \ call nextplayersprite
+  call shiftright2 \ call gbufToLCD; \ call nextplayersprite
+  call shiftright2 \ call gbufToLCD \ call nextplayersprite
+  ;need to draw the right column
+  ld hl,gbuf
+  ld (draw_ptr),hl
+  ld hl,(map_UL)
+  call tilemap_col
+
+  res noupdate,(iy+rpgflags)
+;  set drawmap,(iy+rpgflags)
+_:
+  pop af
+  ret
+rgt:
+  push af
+  ld a,2 \ call setplayersprite
+  ld a,h
+  add a,6
+  cp d
+  jp nc,event_tile
+  inc h
+  call curtile
+  jp m,event_tile
+  jr c,+_
+
+  set noupdate,(iy+rpgflags)
+  ld (map_y),hl
+  add a,8
+  ld h,a
+  ld (coord),hl
+
+  ld b,0
+  ld a,(map_height)
+  ld c,a
+  ld hl,(map_UL)
+  add hl,bc
+  ld (map_UL),hl
+  ld hl,(map_UR)
+  push hl
+  add hl,bc
+  ld (map_UR),hl
+  bit mapedit,(iy+rpgflags) \ jr nz,+_
+  call shiftleft2 \ call gbufToLCD; \ call nextplayersprite
+  call shiftleft2 \ call gbufToLCD; \ call nextplayersprite
+  call shiftleft2 \ call gbufToLCD; \ call nextplayersprite
+  call shiftleft2 \ call gbufToLCD \ call nextplayersprite
+
+  ;need to draw the right column
+  ld hl,gbuf+13
+  ld (draw_ptr),hl
+  pop hl
+;draw_ptr
+;coord
+;tile_ptr in HL
+  call tilemap_col
+
+  res noupdate,(iy+rpgflags)
+
+;  set drawmap,(iy+rpgflags)
+_:
+  pop af
+  ret
+up:
+  push af
+  ld a,3 \ call setplayersprite
+  ld a,l
+  cp -5
+  jr z,event_tile
+  dec l
+  call curtile
+  jp m,event_tile
+  jr c,+_
+
+  set noupdate,(iy+rpgflags)
+  ld (map_y),hl
+  ld hl,(map_UL)
+  dec hl
+  ld (map_UL),hl
+  ld hl,(map_UR)
+  dec hl
+  ld (map_UR),hl
+  bit mapedit,(iy+rpgflags) \ jr nz,+_
+  call shiftdn2 \ call gbufToLCD; \ call nextplayersprite
+  call shiftdn2 \ call gbufToLCD; \ call nextplayersprite
+  call shiftdn2 \ call gbufToLCD; \ call nextplayersprite
+  call shiftdn2 \ call gbufToLCD \ call nextplayersprite
+  res noupdate,(iy+rpgflags)
+  set drawmap,(iy+rpgflags)
+_:
+  pop af
+  ret
+
+curtile:
+;(x,y) = (H,L)
+  push hl
+  push de
+  push bc
+  push af
+
+  call curtile_ptr
+  ld a,(hl)
+
+;If in map editing mode, no boundaries or events should trigger
+  bit mapedit,(iy+rpgflags)
+  jr z,+_
+  xor a
+_:
+
+  add a,a
+  pop bc
+  ld a,b
+  pop bc
+  pop de
+  pop hl
+  ret
+
+curtile_ptr:
+;(x,y) = (H,L)
+  ld a,h
+  add a,6
+  ld h,a
+
+  ld a,l
+  add a,5
+
+  ;H*height+A
+  ld de,(map_height)
+  call H_Times_E
+  ld e,a
+  add hl,de
+  ld de,(map_base)
+  add hl,de
+  ret
+
+event_tile:
+;Need to process the event!
+;
+  pop af
+  call pushpop
+  ld hl,(event_code)
+  ld a,l
+  add a,6
+  ld l,a
+  jp nc,parse
+  inc h
+  jp parse
+
+enter_pressed:
+;Need to possibly trigger an event
+  call pushpop
+  bit mapedit,(iy+rpgflags)
+  jr z,+_
+  call curtile_ptr
+  ld a,(curtile_mapedit)
+  ld (hl),a
+  ret
+_:
+
+;Not in map editing mode, so we need to process this select event!
+  ld hl,(map_y)
+
+  ld a,l
+  add a,5+1
+  ld e,a
+  ld a,h
+  add a,6+1
+  ld d,a
+
+  ld hl,(event_code)
+  inc hl
+  inc hl
+  ld c,(hl)
+  inc hl
+  ld b,(hl)
+  add hl,bc
+
+  ld a,(p_direction)
+  and 3
+  ld c,a
+  jr nz,+_
+  inc e
+_:
+  dec a
+  jr nz,+_
+  dec d
+_:
+  dec a
+  jr nz,+_
+  inc d
+_:
+  dec a
+  jr nz,+_
+  dec e
+_:
+
+  inc c
+
+;D is X
+;E is Y
+;C is direction + 1
+;HL points to the table
+
+;Check if there are any selectable events
+  ld b,(hl)
+  inc hl
+  inc b
+  dec b
+  jr z,no_select_events
+  push hl
+  pop ix
+select_event_loop:
+  ld a,(ix)
+  inc a
+  jr z,select_event_check_x
+  cp e
+  jr nz,+_
+select_event_check_x:
+  ld a,(ix+1)
+  inc a
+  jr z,select_event_check_d
+  cp d
+  jr nz,+_
+select_event_check_d:
+  ld a,(ix+2)
+  inc a
+  jr z,select_event_found
+  cp c
+  jr z,select_event_found
+_:
+  ld a,ixl
+  add a,5
+  ld ixl,a
+  jr nc,+_
+  inc ixh
+_:
+  djnz select_event_loop
+
+no_select_events:
+;Check for built in tile interaction
+  ret
+
+select_event_found:
+  push ix
+  pop hl
+  inc hl
+  inc hl
+  inc hl
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  add hl,de
+  call parse
+  ;Flush [Enter] press
+_:
+  halt
+  ld a,(843Fh)
+  cp 9
+  jr z,-_
+  ret
+
+
+;player sprite data is stored as a sprite array
+;player sprite tiles are stored as:
+;   .db sprite#,nexttile#
+;
+;The first four tiles must initialize the directions in thi order:
+;   tile 0 : base tile DOWN
+;   tile 1 : base tile LEFT
+;   tile 2 : base tile RIGHT
+;   tile 3 : base tile UP
+
+
+setplayersprite:
+;A is the sprite
+;If A != p_direction, then set the new direction and reset
+  call pushpop
+  ld h,a
+  ld a,(p_direction)
+  cp h
+  ret z
+  ld a,h
+  ld (p_direction),a
+  jr +_
+
+close_mapedit:
+  call pushpop
+  res mapedit,(iy+rpgflags)
+
+init_player_sprite:
+;Initialize player tiles
+  ld hl,player_sprites_sheets
+  ld (player_sprite_base),hl
+  ld hl,player_tile_sheets
+  ld (player_tile_base),hl
+  xor a
+  ld (p_direction),a
+  ld h,a
+  ld l,a
+  ld (psprite),hl
+  jr +_
+resetplayersprite:
+  call pushpop
+  ld a,(p_direction)
+_:
+  ld hl,(player_tile_base)
+  add a,a
+  add a,l
+  ld l,a
+  jr nc,+_
+  inc h
+_:
+  ld a,(hl)
+  inc hl
+  ld h,(hl)
+  ld l,a
+  ld (psprite),hl
+
+draw_player_sprite:
+  ;L is the sprite #
+  ld h,0
+  add hl,hl
+  add hl,hl
+  add hl,hl
+  add hl,hl
+  ld de,(player_sprite_base)
+  add hl,de
+
+;Draw the player sprite
+;draw mask
+  ld de,maskbuf+352
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+;draw top layer
+  ld de,topbuf+352
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  set updateLCD,(iy+rpgflags)
+  ret
+
+nextplayersprite:
+;Evolve the tile!
+  call pushpop
+  ld a,(psprite+1)
+  ld hl,(player_tile_base)
+  add a,a
+  add a,l
+  ld l,a
+  jr nc,+_
+  inc h
+_:
+  ld a,(hl)
+  inc hl
+  ld h,(hl)
+  ld l,a
+  ld (psprite),hl
+  jr draw_player_sprite
+
+setup_mapedit:
+  call pushpop
+  set mapedit,(iy+rpgflags)
+  set keepmap,(iy+rpgflags)    ;don't delete the map var
+
+;Initialize player tiles
+  ld hl,player_sprites_sheets_null;first tile is blank
+  ld (player_sprite_base),hl
+  ld hl,player_tile_sheets_null   ;blank player tiles
+  ld (player_tile_base),hl
+  xor a
+  ld (p_direction),a
+  ld h,a
+  ld l,a
+  ld (psprite),hl
+  call resetplayersprite
+
+; set current tile
+  xor a
+  ld (curtile_mapedit),a
+
+  ret
+
+
+packup:
+  di
+  ld hl,backup
+  ld de,flags-4
+  ld bc,74
+  ldir
+  ld iy,flags
+  bcall(_delRes)
+
+; Save player coordinates and direction
+  ld ix,(player_save)
+  ld a,(ix+18)
+  and $FC
+  ld c,a
+  ld a,(p_direction)
+  and 3
+  or c
+  ld (ix+18),a
+  ld bc,(map_y)
+  ld (ix+5),c
+  ld (ix+6),b
+
+; Save the file!
+  ld hl,rpg_save_name
+  rst rMov9ToOP1
+  bcall(_ChkFindSym)
+  jr nc,save_exists
+  ld hl,SAVE_SIZE
+  bcall(_CreateAppVar)
+  jr +_
+save_exists:
+  ld a,b
+  or a
+  jr z,+_
+  bcall(_Arc_Unarc)
+  ld hl,rpg_save_name
+  rst rMov9ToOP1
+  bcall(_ChkFindSym)
+  scf
+_:
+  push af
+  push de
+
+  ld hl,rpg_save_temp_name
+  rst rMov9ToOP1
+  bcall(_ChkFindSym)
+  inc de
+  inc de
+  ex de,hl
+  pop de
+  inc de
+  inc de
+  ld bc,SAVE_SIZE
+  ldir
+  pop af
+  jr nc,+_
+  ld hl,rpg_save_name
+  rst rMov9ToOP1
+  bcall(_Arc_Unarc)
+_:
+
+  bit keepmap,(iy+rpgflags)
+  ret nz
+del_rpg_var:
+  ld hl,rpg_var_name
+  rst rMov9ToOP1
+  bcall(_ChkFindSym)
+  ret c
+  bcall(_DelVar)
+  ret
+
+mapedit_toggleblock:
+  push af
+  ld a,(curtile_mapedit)
+  xor $80
+  ld (curtile_mapedit),a
+  pop af
+  ret
+mapedit_inctile:
+  push hl
+  push af
+  ld a,(curtile_mapedit)
+  ld hl,(tile_count)
+  rlca
+  rl l
+
+  rlca
+  rl l
+
+  add a,4
+  cp l
+
+  jr c,+_
+  and %00000011
+_:
+
+  rrca
+  rrca
+  ld (curtile_mapedit),a
+  pop af
+  pop hl
+  ret
+
+mapedit_dectile:
+  push hl
+  push af
+  ld a,(curtile_mapedit)
+  ld hl,(tile_count)
+  rlca
+  rl l
+
+  rlca
+  rl l
+
+  sub a,4
+
+  jr nc,+_
+  ld a,l
+  sub 4
+_:
+
+  rrca
+  rrca
+  ld (curtile_mapedit),a
+  pop af
+  pop hl
+  ret
+shell_0:
+  ;On the outer shell, make corner guards if we want it to be un-walkable
+  call pushpop
+  ld hl,topbuf+287
+  ld de,topbuf+415
+  ld b,3
+_:
+  set 0,(hl)
+  ld a,(de)
+  or 128
+  ld (de),a
+  inc de
+  inc hl
+  djnz -_
+
+  ld hl,topbuf+294
+  ld de,topbuf+422
+  ld b,3
+_:
+  set 0,(hl)
+  ld a,(de)
+  or 128
+  ld (de),a
+  inc de
+  inc hl
+  djnz -_
+
+  ld a,$C3
+  ld (topbuf+351),a
+
+  ld a,$C3
+  ld (topbuf+360),a
+
+  ret
+
+shell_1:
+  ;On the next shell, make it solid if currently unwalkable
+  call pushpop
+  ld hl,topbuf+414
+  set 7,(hl)
+  ex de,hl
+  ld hl,topbuf+286
+  set 0,(hl)
+  ld b,12
+_:
+  set 1,(hl)
+  ld a,(de)
+  or 64
+  ld (de),a
+  inc de
+  inc hl
+  djnz -_
+
+  dec de
+  dec hl
+  set 0,(hl)
+  ex de,hl
+  set 7,(hl)
+
+  ld a,$FF
+  ld (topbuf+350),a
+  ld (topbuf+361),a
+  ret
+
+shell_2:
+  ;On the next shell, make it dotted if it is an event tile
+  call pushpop
+  ld hl,topbuf+413
+  set 6,(hl)
+  ex de,hl
+  ld hl,topbuf+285
+  set 0,(hl)
+  ld b,7
+_:
+  set 2,(hl)
+  ld a,(de)
+  or 32
+  ld (de),a
+  inc de
+  inc hl
+  inc de
+  inc hl
+  djnz -_
+
+  dec de
+  dec hl
+  set 1,(hl)
+  ex de,hl
+  set 7,(hl)
+
+  ld a,$55
+  ld (topbuf+349),a
+  cpl
+  ld (topbuf+362),a
+  ret
+shells_clear:
+  xor a
+  ld hl,topbuf+285
+  ld de,topbuf+413
+  ld bc,14
+_:
+  ld (hl),a
+  ld (de),a
+  inc hl
+  inc de
+  djnz -_
+  ld hl,topbuf+349
+  ld (hl),a
+  inc hl
+  ld (hl),a
+  inc hl
+  ld (hl),a
+
+  ld hl,topbuf+362
+  ld (hl),a
+  dec hl
+  ld (hl),a
+  dec hl
+  ld (hl),a
+  ret
+
+#ifdef DEBUG
+disp_coords:
+;Display the coordinates
+; Clear the area
+  ld hl,maskbuf
+  ld (curbuf),hl
+  call irect \ .db 0,0,6,36,0
+  ld hl,topbuf
+  ld (curbuf),hl
+  call irect \ .db 0,0,6,36,0
+
+
+  ld hl,0
+  ld (textcol),hl
+  ld a,'('
+  call putC
+  ld a,(map_y)
+  add a,5
+  call int8_to_str
+  call putS
+  ld a,','
+  call putC
+  ld a,(map_x)
+  add a,6
+  call int8_to_str
+  call putS
+  ld a,')'
+  call putC
+  ld a,' '
+  call putC
+  ld a,' '
+  jp putC
+#endif
+
+mov8:
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ret
+#include "setup.z80"
+#include "startscreen.z80"
+#include "routines.z80"
+#include "util/decompress.z80"
+#include "util/textinput.z80"
+#include "util/randinit.z80"
+#include "util/rand.z80"
+#include "util/flashtoRAM.z80"
+#include "util/tostr.z80"
+#include "gfx/gfx.inc"
+#include "gfx/rect.z80"
+#include "gfx/text.z80"
+#include "parse.z80"
+#include "tilemap.z80"
+
+#include "err.z80"
+
+;Data
+rpg_var_name:
+  .db ProgObj,"RPG Map",0
+rpg_save_name:
+  .db $15,"RPG Save",0
+rpg_save_temp_name:
+  .db $15,"RPG Temp",0
+#include "sprites.z80"
+#include "util/tokens.z80"
+
+#include "maps.z80"
+.echo $8000-$-96," bytes remaining"

@@ -1,0 +1,43 @@
+RAM_code:
+flashtoRAM = RAMCode
+;This is a special-purpose routine!
+;File data are strictly less than 16384 bytes,
+;so they'll span at most one page boundary
+  or a
+  jr z,RAMtoRAM
+  out (6),a
+  bit 7,h
+  jr nz,RAMtoRAM
+  add hl,bc
+  bit 7,h
+  jr nz,+_
+  sbc hl,bc
+  jr RAMtoRAM
+_:
+  ;HL-4000h is the number of bytes to read on the second page
+  ;First batch starts at (HL-BC) and reads 8000h-(HL-BC) bytes
+  push hl
+  sbc hl,bc
+  xor a \ sub c \ ld c,a
+  ld a,$80 \ sbc a,b \ ld b,a
+  ldir
+  pop bc
+  ld h,40h
+  ld a,b \ sub h \ ld b,a
+RAMtoRAM:
+  ld a,b
+  or c
+  jr z,+_
+  ldir
+_:
+  in a,(6)
+  ld c,a
+return_page = $+1-RAM_code+flashtoRAM
+  ld a,0
+  out (6),a
+  ld a,c
+  ld c,b
+  ret
+
+
+RAM_code_end:

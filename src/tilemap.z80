@@ -1,0 +1,232 @@
+warp:
+;de    = mapID
+;(b,c) = (x,y)
+;
+
+; Need to call the onclose code !
+  push de
+  push bc
+  ld hl,(event_code)
+  inc hl
+  inc hl
+  inc hl
+  inc hl
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  add hl,de
+  call parse
+  pop bc
+  pop de
+
+
+  ld ix,(player_save)
+  ld (ix+3),e
+  ld (ix+4),d
+
+  call resetplayersprite
+  ld hl,mapLUT
+  add hl,de
+  add hl,de
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  ex de,hl
+  push bc
+  call mapdecomp
+  pop bc
+  inc hl
+  inc hl
+  ld (hl),c
+  inc hl
+  ld (hl),b
+  dec hl
+  dec hl
+  dec hl
+  call warp_stepin
+  ;Now wait amount to clear accidental keypresses!
+  ld b,10
+_:
+  halt
+  djnz -_
+  ret
+
+setupTileMap:
+;HL points to the tilemap
+  call mapdecomp
+warp_stepin:
+  ld de,map_height
+  ldi
+  ldi
+  ldi
+  ldi
+  ld a,(hl)   ;number of tiles, max is 64
+  ldi
+  ld b,a
+_:
+  push bc
+  ld c,(hl)
+  inc hl
+  ld b,(hl)
+  inc hl
+  push hl
+  rl c
+  rl b
+  rl c
+  rl b
+  ld hl,tileset
+  add hl,bc
+  ldi
+  ldi
+  ldi
+  ldi
+  pop hl
+  pop bc
+  djnz -_
+;Now HL points to the data
+  ld (map_base),hl
+;Now we need to calculate the pointer to the upper left corner
+;Need to calculate the pointer to the upper right corner
+;Map data is stored in columns, so upper-left is:
+;   map_base+x*height+y
+;Upper-right is:
+;   map_base+(x+14)*height+y
+  ld a,(map_x)
+  ld de,(map_height)
+  call signed_A_Times_E
+  ld bc,(map_base)
+  add hl,bc
+  ld a,(map_y)
+  rlca
+  rrca
+  ld c,a
+  sbc a,a
+  ld b,a
+  add hl,bc
+  ld (map_UL),hl
+  ;E is map height, D is 0
+  ex de,hl  ;L is map height
+  ld b,h
+  ld c,l
+  add hl,hl
+  add hl,bc
+  add hl,hl
+  add hl,bc
+  add hl,hl
+  add hl,de
+  ld (map_UR),hl
+  set drawmap,(iy+rpgflags)
+  set animate,(iy+rpgflags)
+
+;Need to locate the event code
+  ld hl,(map_height)
+  ld e,l
+  call H_Times_E
+  ld de,(map_base)
+  add hl,de
+  ld (event_code),hl
+
+;Need to trigger the on-load events
+  ld c,(hl)
+  inc hl
+  ld b,(hl)
+  add hl,bc
+  jp parse
+
+tilemap:
+;Draws the 14x10 tilemap
+  bit noupdate,(iy+rpgflags)
+  ret nz
+  res drawmap,(iy+rpgflags)
+  set updateLCD,(iy+rpgflags)
+  ld hl,(map_y)
+  ld (coord),hl
+  ld hl,gbuf
+  ld (draw_ptr),hl
+  ld hl,(map_UL)
+  ld b,14
+_:
+  push bc
+  ld (tile_ptr),hl
+  push hl
+  call tilemap_col
+  ld a,(map_y)
+  ld (coord),a
+  ld hl,coord+1
+  inc (hl)
+  ld hl,(draw_ptr)
+  ld de,-1119
+  add hl,de
+  ld (draw_ptr),hl
+  pop hl
+  ld de,(map_height)
+  ld d,0
+  add hl,de
+  pop bc
+  djnz -_
+  ret
+tilemap_col:
+  call +_
+  call +_
+  call +_
+  call +_
+  call +_
+  call +_
+  call +_
+  call +_
+  call +_
+_:
+  ld b,(hl)
+  ;now I need to look for the tile in the table
+  inc hl
+  push hl
+
+;increment the Y coordinate, but also verify coordinates before selecting tile
+  ld de,sprite_blank
+  ld hl,coord
+  ld a,(hl)
+  inc (hl)
+  ld hl,map_height
+  cp (hl)
+  jr nc,+_
+  ld a,(coord+1)
+#if (map_height&255)==255
+  inc hl
+#else
+  inc l
+#endif
+  cp (hl)
+  jr nc,+_
+  ld a,b
+  ld hl,tile_table
+  add a,a
+  add a,a
+  add a,l
+  ld l,a
+  jr nc,$+3
+  inc h
+  ld l,(hl) ;sprite# in the sprite sheet
+  ld h,0
+  add hl,hl
+  add hl,hl
+  add hl,hl
+  ld de,(sprites)
+  add hl,de
+  ex de,hl
+_:
+  ;DE now points to the sprite
+  ld hl,(draw_ptr)
+  ld bc,14
+  ld a,(de) \ ld (hl),a \ add hl,bc \ inc de
+  ld a,(de) \ ld (hl),a \ add hl,bc \ inc de
+  ld a,(de) \ ld (hl),a \ add hl,bc \ inc de
+  ld a,(de) \ ld (hl),a \ add hl,bc \ inc de
+  ld a,(de) \ ld (hl),a \ add hl,bc \ inc de
+  ld a,(de) \ ld (hl),a \ add hl,bc \ inc de
+  ld a,(de) \ ld (hl),a \ add hl,bc \ inc de
+  ld a,(de) \ ld (hl),a \ add hl,bc
+  ld (draw_ptr),hl
+  pop hl    ;tile ptr
+  ret
+tilemap_row:
+  ret

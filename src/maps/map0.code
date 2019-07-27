@@ -1,0 +1,81 @@
+;events
+.dw onload-$-1
+.dw onselect-$-1
+.dw onclose-$-1
+;if x=5 and (y-2<2)
+;  warp(1,4,7)   ;map_id,x,y
+  .db $19           ;y
+  num(2)
+  .db $08           ;-
+  num(2)
+  .db $01,$18       ;<x
+  num(5)
+  .db $05,$24,$0D   ;=&i
+  warp(1,4,7)
+
+  .db $19           ;y
+  num(18)
+  .db $05
+  .db $18
+  num(20)
+  .db $05,$24,$0D   ;=&i
+  jump(entershed)
+
+;  ifnflag(2)
+;  .db 0
+
+  .db $18
+  num(25)
+  .db $05,$0D   ;=i
+  warp(3,8,0)
+
+  .db $19
+  num(19)
+  .db $05,$0D   ;=i
+  warp(4,0,5)
+
+  .db 0
+
+entershed:
+  ifflag(2)
+  jump(entershed_nowarp)
+  dialog(d_1)
+  .db 0
+entershed_nowarp:
+  warp(2,3,2)
+  .db 0
+
+
+onload:
+  getflag(0)
+  .db $23
+  getflag(1)
+  .db $24,$23,$0D   ;&!i
+  settile(8,13,12)
+  .db 0
+
+onclose:
+  .db 0
+
+onselect:
+  .db 1
+  selectevent(8,13,-1,select_0)
+
+select_0:
+;Pick up the flower !
+;Exit if this has already been done
+  ifnflag(7)
+  .db 0
+  ifflag(0)
+  .db 0
+  setflag(0)
+  settile(8,13,12)
+  dialog(d_0)
+  .db 0
+
+d_0:
+.db "Oh, ",c_tok,t_this," flower smells",c_nl
+.db "quite lovely!",0
+
+d_1:
+.db "Mr. Lafler's Shed",0

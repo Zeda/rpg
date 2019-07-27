@@ -1,0 +1,190 @@
+player_sprites_sheets_null:
+sprite_blank:
+  .db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+tilesheet:
+#include "maps/tiles.z80"
+;.db $,$,$,$,$,$,$,$
+
+
+tileset:
+tile0:  .db 0,0 \ .dw tile0
+tile1:  .db 1,0 \ .dw tile1
+tile2:  .db 2,0 \ .dw tile2
+tile3:  .db 3,0 \ .dw tile3
+tile4:  .db 4,0 \ .dw tile4
+tile5:  .db 5,0 \ .dw tile5
+tile6:  .db 6,0 \ .dw tile6
+tile7:  .db 7,0 \ .dw tile7
+tile8:  .db 8,0 \ .dw tile8
+tile9:  .db 9,0 \ .dw tile9
+tile10:  .db 10,0 \ .dw tile10
+tile11:  .db 11,32 \ .dw tile12
+tile12:  .db 12,32 \ .dw tile11
+tile13:  .db 13,0 \ .dw tile13
+tile14:  .db 14,32 \ .dw tile15
+tile15:  .db 15,32 \ .dw tile14
+tile16:  .db 16,32 \ .dw tile17
+tile17:  .db 17,32 \ .dw tile16
+tile18:  .db 18,0 \ .dw tile18
+tile19:  .db 19,0 \ .dw tile19
+tile20:  .db 20,32 \ .dw tile21
+tile21:  .db 21,32 \ .dw tile20
+tile22:  .db 22,0 \ .dw tile22
+tile23:  .db 23,32 \ .dw tile31
+tile24:  .db 24,32 \ .dw tile32
+tile25:  .db 25,32 \ .dw tile33
+tile26:  .db 26,32 \ .dw tile34
+tile27:  .db 27,32 \ .dw tile35
+tile28:  .db 28,32 \ .dw tile36
+tile29:  .db 29,32 \ .dw tile37
+tile30:  .db 30,32 \ .dw tile38
+tile31:  .db 31,32 \ .dw tile23
+tile32:  .db 32,32 \ .dw tile24
+tile33:  .db 33,32 \ .dw tile25
+tile34:  .db 34,32 \ .dw tile26
+tile35:  .db 35,32 \ .dw tile27
+tile36:  .db 36,32 \ .dw tile28
+tile37:  .db 37,32 \ .dw tile29
+tile38:  .db 38,32 \ .dw tile30
+tile39:  .db 39,0 \ .dw tile39
+tile40:  .db 40,0 \ .dw tile40
+tile41:  .db 41,0 \ .dw tile41
+tile42:  .db 42,0 \ .dw tile42
+tile43:  .db 43,0 \ .dw tile43
+tile44:  .db 44,0 \ .dw tile44
+tile45:  .db 45,0 \ .dw tile45
+tile46:  .db 46,0 \ .dw tile46
+tile47:  .db 47,0 \ .dw tile47
+tile48:  .db 48,0 \ .dw tile48
+tile49:  .db 49,0 \ .dw tile49
+tile50:  .db 50,0 \ .dw tile50
+tile51:  .db 51,0 \ .dw tile51
+tile52:  .db 52,0 \ .dw tile52
+tile53:  .db 53,0 \ .dw tile53
+tile54:  .db 54,0 \ .dw tile54
+tile55:  .db 55,0 \ .dw tile55
+tile56:  .db 56,0 \ .dw tile56
+tile57:  .db 57,0 \ .dw tile57
+tile58:  .db 58,16 \ .dw tile59
+tile59:  .db 59,16 \ .dw tile58
+
+tile60:  .db 60,0 \ .dw tile60
+tile61:  .db 61,0 \ .dw tile61
+tile62:  .db 62,0 \ .dw tile62
+tile63:  .db 63,0 \ .dw tile63
+tile64:  .db 64,0 \ .dw tile64
+tile65:  .db 65,0 \ .dw tile65
+tile66:  .db 66,0 \ .dw tile66
+tile67:  .db 67,0 \ .dw tile67
+tile68:  .db 68,0 \ .dw tile68
+tile69:  .db 69,0 \ .dw tile69
+
+tile70:  .db 70,0 \ .dw tile70
+tile71:  .db 71,0 \ .dw tile71
+tile72:  .db 72,0 \ .dw tile72
+tile73:  .db 73,0 \ .dw tile73
+tile74:  .db 74,0 \ .dw tile74
+tile75:  .db 75,0 \ .dw tile75
+tile76:  .db 76,0 \ .dw tile76
+tile77:  .db 77,0 \ .dw tile77
+tile78:  .db 78,0 \ .dw tile78
+tile79:  .db 79,0 \ .dw tile79
+
+
+overworld_sprites:
+player_sprites_sheets:
+player_0:
+;down
+.db $C1,$80,$80,$80,$80,$C1,$80,$C9
+.db $3E,$41,$7F,$55,$41,$3E,$5D,$36
+
+.db $C1,$80,$80,$80,$80,$80,$80,$C9
+.db $3E,$41,$7F,$55,$61,$5F,$7F,$36
+
+.db $C1,$80,$80,$80,$80,$80,$80,$C9
+.db $3E,$41,$7F,$55,$43,$7D,$7F,$36
+
+;left
+.db $C3,$81,$80,$80,$80,$C2,$E3,$C3
+.db $3C,$42,$7F,$55,$43,$3D,$14,$3C
+
+.db $C3,$81,$80,$80,$80,$C2,$C1,$81
+.db $3C,$42,$7F,$55,$43,$3F,$2E,$7E
+
+.db $C3,$81,$80,$80,$80,$C2,$C1,$81
+.db $3C,$42,$7F,$55,$43,$3F,$3A,$7E
+
+;right
+.db $E1,$C0,$80,$80,$80,$A1,$E3,$E1
+.db $1E,$21,$7F,$55,$61,$5E,$14,$1E
+
+.db $E1,$C0,$80,$80,$80,$A1,$C1,$C0
+.db $1E,$21,$7F,$55,$61,$5E,$3A,$3F
+
+.db $E1,$C0,$80,$80,$80,$A1,$C1,$C0
+.db $1E,$21,$7F,$55,$61,$5E,$2E,$3F
+
+;up
+.db $C1,$80,$80,$80,$80,$C1,$80,$C9
+.db $3E,$41,$7F,$55,$55,$36,$5D,$36
+
+.db $C1,$80,$80,$80,$80,$80,$80,$C9
+.db $3E,$41,$7F,$55,$57,$75,$4F,$36
+
+.db $C1,$80,$80,$80,$80,$80,$80,$C9
+.db $3E,$41,$7F,$55,$75,$57,$79,$36
+
+
+man_0_down:
+  .db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+  .db $00,$00,$00,$00,$00,$00,$00,$00
+  .db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+  .db $00,$00,$00,$00,$00,$00,$00,$00
+  .db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+  .db $00,$00,$00,$00,$00,$00,$00,$00
+man_0_left:
+  .db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+  .db $00,$00,$00,$00,$00,$00,$00,$00
+  .db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+  .db $00,$00,$00,$00,$00,$00,$00,$00
+  .db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+  .db $00,$00,$00,$00,$00,$00,$00,$00
+man_0_right:
+  .db $FF,$85,$FF,$C3,$DB,$FF,$FF,$FF
+  .db $7E,$85,$7E,$C2,$DA,$FE,$7E,$3C
+
+  .db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+  .db $00,$00,$00,$00,$00,$00,$00,$00
+  .db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+  .db $00,$00,$00,$00,$00,$00,$00,$00
+man_0_up:
+  .db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+  .db $00,$00,$00,$00,$00,$00,$00,$00
+  .db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+  .db $00,$00,$00,$00,$00,$00,$00,$00
+  .db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+  .db $00,$00,$00,$00,$00,$00,$00,$00
+
+
+
+player_tile_sheets_null:
+  .db 0,0
+  .db 0,0
+  .db 0,0
+  .db 0,0
+
+player_tile_sheets:
+  .db 0,4   ;sprite 0, tile 0, down
+  .db 3,5   ;sprite 0, tile 1, left
+  .db 6,6   ;sprite 0, tile 2, right
+  .db 9,7   ;sprite 0, tile 3, up
+
+  .db 1,8   ;sprite 0, tile 0, down
+  .db 4,9   ;sprite 0, tile 1, left
+  .db 7,10   ;sprite 0, tile 2, right
+  .db 10,11   ;sprite 0, tile 3, up
+
+  .db 2,4   ;sprite 0, tile 0, down
+  .db 5,5   ;sprite 0, tile 1, left
+  .db 8,6   ;sprite 0, tile 2, right
+  .db 11,7   ;sprite 0, tile 3, up

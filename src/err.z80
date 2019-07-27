@@ -1,0 +1,149 @@
+err_Unknown_Token:
+  ld a,3
+  jr err_
+err_Corrupted_Save_File:
+  ld a,2
+  jr err_
+err_Unknown_Command:
+  ld a,1
+err_:
+  or a
+  jr z,disp_err
+  cp (errLUT_end-errLUT)/2+1
+  jr c,+_
+  ld a,255
+  ld hl,s_unknown_err
+  jr disp_err
+_:
+  ld d,0
+  ld e,a
+  ld hl,errLUT-2
+  add hl,de
+  add hl,de
+  ld e,(hl)
+  inc hl
+  ld d,(hl)
+  ex de,hl
+
+disp_err:
+;A is the error code
+;HL is the string to display
+  pop de
+  push de
+  push hl
+  push de
+  push af
+
+; Disable animation
+  res animate,(iy+rpgflags)
+
+; Draw the noisy mask to blur the background
+  ld hl,maskbuf
+  ld (curbuf),hl
+  ld a,$55
+  ld bc,768
+_:
+  cpl
+  ld (hl),a
+  cpi
+  jp pe,-_
+
+; Draw the mask for the text box
+  Rect(14,14,36,68,_Erase)
+
+; Draw the text box
+  ld hl,topbuf
+  ld (curbuf),hl
+  Rect(14,15,36,66,_OR)
+  Rect(15,14,34,68,_OR)
+  Rect(15,15,34,66,_Erase)
+  Rect(22,16,1,64,_OR)
+
+; Draw the header
+  ld hl,$1004
+  ld (textcol),hl
+  ld hl,s_err
+  call putS
+  ld hl,OP1
+  pop af
+  ld (hl),a
+  ld a,c_u8
+  call putC
+  ld a,':'
+  call putC
+  pop de
+  ld (OP1+1),de
+  ld a,c_u16
+  call putC
+
+
+
+  ld hl,$1804
+  ld (textcol),hl
+  pop hl
+  call putErr
+
+  ld hl,$2A07
+  ld (textcol),hl
+  ld hl,s_err_exit
+  call putS
+
+  set updateLCD,(iy+rpgflags)
+  ei
+_:
+  halt
+  jr -_
+
+
+_:
+  cp c_newline
+  jr z,+_
+  call putC
+putErr:
+  ld a,(hl)
+  or a
+  ret z
+  ld a,(textcol)
+  cp 20
+  ld a,(hl)
+  inc hl
+  jr nz,-_
+  cp c_newline
+  jr z,+_
+  dec hl
+_:
+  ld a,4
+  ld (textcol),a
+  ld a,(textrow)
+  add a,6
+  ld (textrow),a
+  cp 42
+  jr c,putErr
+  ret
+
+errLUT:
+  .dw s_e_unknown_command
+  .dw s_e_corrupted_save
+  .dw s_e_unknown_token
+errLUT_end:
+
+s_e_unknown_token:
+  .db "Unknown token",c_nl
+  .db "in a string.",0
+
+s_e_unknown_command:
+  .db "Unknown command",c_nl
+  .db "in script code.",0
+
+s_e_corrupted_save:
+  .db "The save file is",c_nl
+  .db "corrupted!",0
+
+s_err:
+  .db "Error ",0
+s_err_exit:
+  .db "press [ON]",0
+s_unknown_err:
+  .db "Unrecognized",c_nl
+  .db "error thrown",0
+;      ----------------

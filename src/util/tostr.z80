@@ -1,0 +1,81 @@
+int8_to_str:
+  ld hl,OP1
+  or a
+  jp p,+_
+  neg
+  ld (hl),'-'
+  inc hl
+_:
+
+  ld de,$302F
+  ld bc,$300A
+
+  cp 100
+  jr c,+_
+  sub 100
+  inc d
+_:
+  inc e \ sub c \ jr nc,-_
+  add a,c
+  add a,b
+  ld c,a
+
+  ld a,d
+  cp b
+  jr nz,int8_to_str_3
+  ld a,e
+  cp b
+  jr nz,int8_to_str_2
+  jr int8_to_str_1
+int8_to_str_3:
+  ld (hl),d
+  inc hl
+int8_to_str_2:
+  ld (hl),e
+  inc hl
+int8_to_str_1:
+  ld (hl),c
+  inc hl
+  ld (hl),0
+  ld hl,OP1
+  ret
+
+uint8_to_str:
+  ld d,0
+  ld e,a
+uint16_to_str:
+  ld c,10
+  ld hl,OP1+5
+  ld (hl),0
+  dec hl
+  ld (hl),'0'
+  ld a,d
+  or e
+  ret z
+  .db $FE   ;start of `cp *`
+_:
+  dec hl
+  push hl
+  ex de,hl
+  call HL_Div_C
+  ex de,hl
+  add a,'0'
+  pop hl
+  ld (hl),a
+  ld a,d
+  or e
+  jr nz,-_
+  ret
+
+HL_Div_C:
+  xor a
+  ld b,16
+_:
+  add hl,hl
+  rla
+  cp c
+  jr c,$+4
+  sub c
+  inc l
+  djnz -_
+  ret

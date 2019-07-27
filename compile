@@ -1,0 +1,17 @@
+#!/bin/bash
+cd src
+for f in `cat maps.txt`; do
+  if [ ! -f "maps/${f}_comp.z80" ];then
+    spasm "maps/${f}.z80" "maps/${f}.bin"
+    python zlz.py "maps/${f}.bin" "maps/${f}_comp.z80" ${f}
+    rm "maps/${f}.bin"
+  fi
+done;
+if [ ! -f "gfx/splash_comp.z80" ];then
+  python splash.py
+fi
+spasm main.z80 ../bin/rpg.8xk
+
+#spasm omnirpg.z80 omnirpg.hex
+#rabbitsign omnirpg.hex -o ../bin/omnirpg.8xk
+#rm omnirpg.hex

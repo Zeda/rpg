@@ -1,0 +1,221 @@
+waitnokey:
+  ei
+_:
+  halt
+  ld a,(843Fh)
+  or a
+  jr nz,-_
+  ret
+
+GetKeyDebounce:
+  ei
+  halt
+  ld a,(843Fh)
+  ld hl,k_save
+  cp (hl)
+  jr nz,newkeypress
+;if the keys match, decrement k_count
+  inc hl
+  dec (hl)
+  jr z,+_
+  xor a
+  ret
+_:
+  inc hl
+  ld a,(hl)
+  sub K_DELAY_ACCEL+1
+  jr nc,+_
+  xor a
+_:
+  inc a
+  ld (hl),a
+  dec hl
+  ld (hl),a
+  dec hl
+  ld a,(hl)
+  ret
+newkeypress:
+  ld (hl),a
+  inc hl
+  ld (hl),K_DELAY_DEFAULT
+  inc hl
+  ld (hl),K_DELAY_DEFAULT
+  ret
+
+getKey:
+;return keypress in A
+;speed:
+;   42+20k+56g
+;   k is 1 to 8, avg = 4.5
+;   g is 1 to 7, avg = 4
+;no key press: 470cc
+;min: 118cc
+;max: 594cc
+;avg: 356cc
+;28 bytes
+  ld c,1
+  ld de,$FE00
+_:
+  out (c),d
+  sla d     ;By only writing zeros over ones, no delay needed https://www.omnimaga.org/asm-language/port-1-stuf
+  ret nc
+  inc e
+  in a,(1)
+  inc a
+  jr z,-_
+  sla e
+  sla e
+  sla e
+_:
+  dec e
+  add a,a
+  jr nz,-_
+  adc a,e ;carry is set and a is zero, so let's take advantage of it
+  ret
+
+signed_A_Times_E:
+  add a,a
+  push af
+  jr nc,$+4
+  neg
+  ld h,a
+  ld d,0
+  ld l,d
+  sla h \ jr nc,$+3 \ ld l,e
+  add hl,hl \ jr nc,$+3 \ add hl,de
+  add hl,hl \ jr nc,$+3 \ add hl,de
+  add hl,hl \ jr nc,$+3 \ add hl,de
+  add hl,hl \ jr nc,$+3 \ add hl,de
+  add hl,hl \ jr nc,$+3 \ add hl,de
+  add hl,hl \ jr nc,$+3 \ add hl,de
+  pop af
+  ret nc
+  xor a
+  sub l
+  ld l,a
+  sbc a,a
+  sub h
+  ld h,a
+  ret
+shiftleft2:
+;50741cc
+ call shiftleft
+shiftleft:
+;25362cc
+;22+(21*8+13)*140
+  ld hl,gbuf+1119
+  ld b,140
+_:
+  rl (hl) \ dec hl
+  rl (hl) \ dec hl
+  rl (hl) \ dec hl
+  rl (hl) \ dec hl
+  rl (hl) \ dec hl
+  rl (hl) \ dec hl
+  rl (hl) \ dec hl
+  rl (hl) \ dec hl
+  djnz -_
+  ret
+shiftright2:
+;50741cc
+  call shiftright
+shiftright:
+;25362cc
+;22+(21*8+13)*140
+  ld hl,gbuf
+  ld b,140
+_:
+  rr (hl) \ inc hl
+  rr (hl) \ inc hl
+  rr (hl) \ inc hl
+  rr (hl) \ inc hl
+  rr (hl) \ inc hl
+  rr (hl) \ inc hl
+  rr (hl) \ inc hl
+  rr (hl) \ inc hl
+  djnz -_
+  ret
+shiftup2:
+  push de
+  ld de,gbuf
+  ld hl,gbuf+28
+  ld bc,1120-28
+_:
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  ldi
+  jp pe,-_
+  pop de
+  ret
+shiftdn2:
+  push de
+  ld de,gbuf+1119
+  ld hl,gbuf+1119-28
+  ld bc,1120-28   ;4*3*7*13
+_:
+  ldd
+  ldd
+  ldd
+  ldd
+  ldd
+  ldd
+  ldd
+  ldd
+  ldd
+  ldd
+  ldd
+  ldd
+  ldd
+  ldd
+  jp pe,-_
+  pop de
+  ret
+pushpop:
+;26 bytes, adds 118cc to the traditional routine
+  ex (sp),hl
+  push de
+  push bc
+  push af
+  push hl
+  ld hl,pushpopret
+  ex (sp),hl
+  push hl
+  push af
+  ld hl,12
+  add hl,sp
+  ld a,(hl)
+  inc hl
+  ld h,(hl)
+  ld l,a
+  pop af
+  ret
+pushpopret:
+  pop af
+  pop bc
+  pop de
+  pop hl
+  ret
+
+H_Times_E:
+  ld d,0
+  ld l,d
+  sla h \ jr nc,$+3 \ ld l,e
+  add hl,hl \ jr nc,$+3 \ add hl,de
+  add hl,hl \ jr nc,$+3 \ add hl,de
+  add hl,hl \ jr nc,$+3 \ add hl,de
+  add hl,hl \ jr nc,$+3 \ add hl,de
+  add hl,hl \ jr nc,$+3 \ add hl,de
+  add hl,hl \ jr nc,$+3 \ add hl,de
+  add hl,hl \ ret nc \ add hl,de
+  ret

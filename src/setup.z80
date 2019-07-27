@@ -1,0 +1,169 @@
+SetUp:
+  di
+
+#ifdef maxMHZ
+;bump it to 15MHz if possible
+  in a,(2)
+  add a,a
+  sbc a,a
+  and 3
+  out (20h),a
+#endif
+
+;Save  the Stack Pointer
+  pop hl
+  ld (spsave),sp
+  push hl
+
+; Initialize RNG
+  call randinit
+
+; Load the temporary ROM reading routines
+  ld de,flashtoRAM
+  ld hl,RAM_code
+  ld bc,RAM_code_end-RAM_code
+  ldir
+  in a,(6)
+  ld (return_page),a
+
+; Create save file
+  ld hl,rpg_save_temp_name
+  rst rMov9ToOP1
+  bcall(_ChkFindSym)
+  jr c,+_
+  bcall(_DelVarArc)
+_:
+  ld hl,SAVE_SIZE
+  bcall(_CreateAppVar)
+  push de
+
+;Now load existing data
+  ld hl,rpg_save_name
+  rst rMov9ToOP1
+  bcall(_ChkFindSym)
+  pop hl
+  call c,create_save
+  jr c,+_
+  ex de,hl
+  ld a,b
+  or a
+  jr z,save_loc_adjusted
+  ld b,0
+  add hl,bc
+  ld c,10
+  add hl,bc
+  bit 7,h
+  jr z,save_loc_adjusted
+  res 7,h
+  set 6,h
+  inc a
+save_loc_adjusted:
+  inc de
+  inc de
+  ld c,2
+  call flashtoRAM
+  ld c,a
+  dec de
+  ld a,(de)
+  cp SAVE_SIZE>>8
+  call nz,err_Corrupted_Save_File
+  dec de
+  ld a,(de)
+  cp SAVE_SIZE&255
+  call nz,err_Corrupted_Save_File
+  ld a,c
+  ld bc,SAVE_SIZE
+  call flashtoRAM
+_:
+
+;Set up a temp var
+; First remove temp vars
+  call del_rpg_var
+  ld hl,TEMP_ALLOC_MAX    ;Maximum of 50x50 bytes :)
+  ld a,(OP1)
+  bcall(_CreateVar)
+  inc de
+  inc de
+  ld (temp_prog_base),de
+
+;Now load the actual save file info
+  ld hl,rpg_save_temp_name
+  rst rMov9ToOP1
+  bcall(_ChkFindSym)
+  inc de
+  inc de
+  ld (player_save),de
+
+;Setup LCD
+  ld a,80h
+  out (16),a
+
+;Move flags for safe storage
+  ld hl,flags-4
+  ld de,backup
+  ld bc,74
+  ldir
+  ld iy,backup+4
+  ld (iy+rpgflags),c
+
+;Clear the Top Layer
+  call clrtopbuf
+
+;Set the mask layer to all 1s
+  ld hl,maskbuf
+  dec a
+  call fillbuf
+
+;Set up interrupts
+  ld a,11
+  out (3),a
+  ld a,41h
+  ld i,a
+  im 2
+  ei
+  ret
+
+create_save:
+;Create a new file. HL points to size bytes.
+  ex de,hl
+  push de
+  inc de
+  inc de
+  ld bc,18
+  ld hl,new_save_data
+  ldir
+
+  push de
+  call rand
+  ex (sp),hl
+  push hl
+  call rand
+  pop de
+  ex de,hl
+  ld (hl),d
+  inc hl
+  ld (hl),e
+  inc hl
+  pop de
+  ld (hl),e
+  inc hl
+  ld (hl),d
+  inc hl
+
+
+  ld d,h
+  ld e,l
+  ld bc,SAVE_SIZE-22-1
+  xor a
+  ld (hl),a
+  inc de
+  ldir
+  pop de
+  scf
+  ret
+
+new_save_data:
+  .db "RPG"
+  .dw 0
+  .db -3,-1
+  .db "Sammy",0

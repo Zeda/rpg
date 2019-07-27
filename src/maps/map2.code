@@ -1,0 +1,35 @@
+.dw onload-$-1
+.dw onselect-$-1
+.dw onclose-$-1
+  .db $18
+  num(2)
+  .db $05,$0D   ;=i
+  warp(0,18,20)
+  .db 0
+
+onload:
+onclose:
+  .db 0
+
+onselect:
+  .db 1
+  selectevent(3,4,-1,select_0)
+
+select_0:
+  ifnflag(4)
+  jump(pickup_dirt)
+  dialog(d_0)
+  .db 0
+
+pickup_dirt:
+  additem(item_lafler_dirt,1)
+  setflag(4)
+  dialog(d_1)
+  .db 0
+
+d_0:
+  .db "This is wonderful soil!",0
+
+d_1:
+  .db "Better bring this back",c_nl
+  .db "to Mr. Lafler!",0
